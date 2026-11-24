@@ -1,0 +1,4889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPU Food — Smart Campus Dining & Live Crowd Pre-Ordering</title>
+  <meta name="description"
+    content="Pre-order meals across Uni-Mall and LPU campus canteens, track live queue densities, and skip the rush with instant QR counter pickup.">
+  <meta name="keywords"
+    content="LPU Food, Lovely Professional University, LPU Canteen, Uni-Mall Food Court, Pre-order food LPU, Block 34 Canteen, Rohit Kumar CSE, campus dining">
+  <meta name="author" content="Rohit Kumar">
+  <meta property="og:title" content="LPU Food — Smart Campus Dining &amp; Live Crowd Pre-Ordering">
+  <meta property="og:description"
+    content="Pre-order meals across Uni-Mall and LPU campus canteens, track live queue densities, and skip the rush with instant QR counter pickup.">
+  <meta property="og:type" content="website">
+  <meta property="og:image"
+    content="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1200&amp;auto=format&amp;fit=crop&amp;q=80">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "LPU Food Express",
+    "description": "Campus food pre-ordering and live crowd density tracker for Lovely Professional University.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "All",
+    "author": {
+      "@type": "Person",
+      "name": "Rohit Kumar"
+    }
+  }
+  </script>
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --chili: #A6293A;
+      --chili-dark: #7A1E2C;
+      --chili-glow: rgba(166, 41, 58, 0.22);
+      --chili-soft: #FDF1F2;
+      --turmeric: #F4A228;
+      --turmeric-deep: #C77D16;
+      --turmeric-soft: #FFF7EB;
+      --mint: #2E8B57;
+      --mint-soft: #EBF7F0;
+      --mint-glow: rgba(46, 139, 87, 0.2);
+      --amber-soft: #FFF5E6;
+      --red-soft: #FDE8E8;
+      --steel: #F7F5F0;
+      --steel-2: #ECE6DA;
+      --card: #FFFFFF;
+      --card-subtle: #FAF8F5;
+      --line: #E5DFD3;
+      --ink: #1F1B17;
+      --ink-soft: #6A6054;
+      --ink-muted: #9E9487;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 2px 8px rgba(31, 27, 23, 0.04);
+      --shadow-md: 0 10px 28px -6px rgba(31, 27, 23, 0.08), 0 4px 10px -2px rgba(31, 27, 23, 0.03);
+      --shadow-lg: 0 22px 45px -10px rgba(31, 27, 23, 0.16);
+      --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--steel);
+      color: var(--ink);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    .brand-text,
+    .display-font {
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ---------------- Header & Navbar ---------------- */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(247, 245, 240, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      transition: var(--transition);
+    }
+
+    .navbar-inner {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--chili-dark);
+      cursor: pointer;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--chili), var(--chili-dark));
+      color: var(--turmeric);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 4px 12px var(--chili-glow);
+    }
+
+    .campus-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: var(--mint-soft);
+      color: var(--mint);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .campus-status-badge .pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 0 0 rgba(46, 139, 87, 0.6);
+      animation: pulse-green 1.8s infinite;
+    }
+
+    @keyframes pulse-green {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(46, 139, 87, 0.6);
+      }
+
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(46, 139, 87, 0);
+      }
+
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(46, 139, 87, 0);
+      }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      background: transparent;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--ink);
+      background: var(--steel-2);
+    }
+
+    .nav-link.active {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .nav-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--chili);
+      display: none;
+    }
+
+    .nav-badge.active {
+      display: block;
+      animation: bounce 1s infinite alternate;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sound-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--ink-soft);
+      transition: var(--transition);
+    }
+
+    .sound-btn:hover {
+      background: var(--steel-2);
+      color: var(--ink);
+    }
+
+    .wallet-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 13px;
+      border-radius: var(--radius-full);
+      background: var(--turmeric-soft);
+      border: 1.5px solid rgba(244, 162, 40, 0.4);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #7B4900;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .wallet-chip:hover {
+      transform: translateY(-1px);
+      border-color: var(--turmeric);
+    }
+
+    .wallet-chip span.add-sym {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--turmeric);
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 100px;
+      padding: 4px 14px 4px 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .nav-user:hover {
+      border-color: var(--chili);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--turmeric), var(--turmeric-deep));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .hamburger {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 6px 9px;
+      font-size: 20px;
+    }
+
+    /* ---------------- Buttons ---------------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 11px 20px;
+      transition: var(--transition);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--chili);
+      color: #fff;
+      box-shadow: 0 4px 14px var(--chili-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--chili-dark);
+      box-shadow: 0 6px 18px rgba(122, 30, 44, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-turmeric {
+      background: var(--turmeric);
+      color: #2B1C04;
+      box-shadow: 0 4px 14px rgba(244, 162, 40, 0.28);
+    }
+
+    .btn-turmeric:hover {
+      background: #E5951A;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--chili);
+      border: 1.5px solid var(--chili);
+    }
+
+    .btn-ghost:hover {
+      background: var(--chili-soft);
+    }
+
+    .btn-subtle {
+      background: var(--steel-2);
+      color: var(--ink);
+    }
+
+    .btn-subtle:hover {
+      background: var(--line);
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 12.5px;
+      border-radius: 9px;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    /* ---------------- Ticker Bar ---------------- */
+    .ticker-bar {
+      background: #231C18;
+      color: #F0E9DC;
+      font-size: 12px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .ticker-content {
+      display: flex;
+      gap: 32px;
+      white-space: nowrap;
+      animation: ticker-slide 32s linear infinite;
+    }
+
+    .ticker-content:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes ticker-slide {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ---------------- Pages ---------------- */
+    .page {
+      display: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .page.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---------------- Cards & Layout ---------------- */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .section {
+      padding: 48px 0;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .section-head p {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+      max-width: 540px;
+    }
+
+    .link-more {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--chili);
+      cursor: pointer;
+    }
+
+    .link-more:hover {
+      text-decoration: underline;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* ---------------- Hero Section ---------------- */
+    .hero {
+      background: linear-gradient(145deg, #8E1F30 0%, #681723 100%);
+      color: #fff;
+      padding: 60px 0 84px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -140px;
+      right: -100px;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244, 162, 40, 0.28) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .eyebrow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1.14;
+      max-width: 540px;
+    }
+
+    .hero h1 span.gradient-text {
+      background: linear-gradient(120deg, #FFE180, #F4A228);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 15px;
+      opacity: 0.9;
+      margin-top: 14px;
+      max-width: 470px;
+      line-height: 1.6;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    /* Hero Class Sync Panel */
+    .hero-panel {
+      background: var(--card);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 30px 60px -15px rgba(25, 14, 10, 0.45);
+      color: var(--ink);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .sync-card {
+      background: linear-gradient(135deg, #FFF7EB 0%, #FEE8C8 100%);
+      border: 1.5px solid rgba(244, 162, 40, 0.4);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .sync-select-wrap {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .select-styled {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid #DFC9A8;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .countdown-display {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: #7B4900;
+    }
+
+    .countdown-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--turmeric);
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 6px;
+      vertical-align: middle;
+    }
+
+    .mini-density {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mini-density-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: var(--card-subtle);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-green {
+      background: var(--mint);
+    }
+
+    .dot-yellow {
+      background: var(--turmeric-deep);
+    }
+
+    .dot-red {
+      background: var(--chili);
+    }
+
+    /* ---------------- Vendor Cards ---------------- */
+    .vendor-card {
+      padding: 0;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      transition: var(--transition);
+    }
+
+    .vendor-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(166, 41, 58, 0.3);
+    }
+
+    .vendor-img-wrap {
+      height: 140px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: var(--steel-2);
+    }
+
+    .vendor-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .vendor-card:hover .vendor-img-wrap img {
+      transform: scale(1.05);
+    }
+
+    .vendor-badge-top {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .vendor-card-body {
+      padding: 18px;
+    }
+
+    .vendor-name {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .vendor-meta {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      margin: 3px 0 12px;
+    }
+
+    .vendor-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    /* ---------------- Menu / Ordering Page ---------------- */
+    .menu-controls {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrap input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border-radius: 12px;
+      border: 1.5px solid var(--line);
+      font-size: 14px;
+      background: var(--steel);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-input-wrap input:focus {
+      border-color: var(--chili);
+      background: #fff;
+      box-shadow: 0 0 0 3px var(--chili-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-muted);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-chip {
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--steel);
+      color: var(--ink-soft);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-chip:hover {
+      background: var(--steel-2);
+      color: var(--ink);
+    }
+
+    .filter-chip.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .menu-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .vendor-sidebar {
+      position: sticky;
+      top: 80px;
+    }
+
+    .vendor-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      margin-bottom: 8px;
+      background: var(--card);
+      transition: var(--transition);
+    }
+
+    .vendor-list-item.active {
+      border-color: var(--chili);
+      background: var(--chili-soft);
+      box-shadow: 0 4px 14px var(--chili-glow);
+    }
+
+    .vendor-list-item:hover:not(.active) {
+      background: var(--steel-2);
+    }
+
+    .vendor-list-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    /* Dish item grid & card */
+    .dish-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .dish-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      background: var(--card);
+      gap: 16px;
+      transition: var(--transition);
+    }
+
+    .dish-card:hover {
+      border-color: #D3C9BA;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dish-info-col {
+      flex: 1;
+    }
+
+    .dish-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dish-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--turmeric-soft);
+      color: var(--turmeric-deep);
+    }
+
+    .dish-desc {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      margin: 4px 0 8px;
+      line-height: 1.4;
+    }
+
+    .dish-price {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .dish-img-col {
+      position: relative;
+      width: 104px;
+      height: 90px;
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--steel-2);
+    }
+
+    .dish-img-col img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .stepper-overlay {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+    }
+
+    .veg-mark {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid var(--mint);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .veg-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--mint);
+      border-radius: 50%;
+    }
+
+    .veg-mark.nonveg {
+      border-color: var(--chili);
+    }
+
+    .veg-mark.nonveg::after {
+      background: var(--chili);
+    }
+
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1.5px solid var(--chili);
+      border-radius: 10px;
+      background: #fff;
+      padding: 4px 10px;
+      min-width: 86px;
+      box-shadow: 0 2px 8px rgba(166, 41, 58, 0.15);
+    }
+
+    .stepper button {
+      background: none;
+      border: none;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--chili);
+      width: 20px;
+      line-height: 1;
+      transition: transform 0.1s;
+    }
+
+    .stepper button:active {
+      transform: scale(0.85);
+    }
+
+    .stepper .qty {
+      font-weight: 800;
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+
+    /* ---------------- Interactive Campus Map ---------------- */
+    .campus-map-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .map-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-soft);
+    }
+
+    .map-diagram {
+      background: #241E19;
+      border-radius: 18px;
+      padding: 28px;
+      color: #fff;
+      position: relative;
+      min-height: 380px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(8, 44px);
+      gap: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .map-road-h {
+      grid-column: 1 / -1;
+      grid-row: 5;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .map-road-v {
+      grid-column: 7;
+      grid-row: 1 / -1;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      writing-mode: vertical-rl;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .map-node {
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+      border: 1.5px solid transparent;
+    }
+
+    .map-node:hover {
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    .map-node.selected {
+      border-color: #fff;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .map-node-mall {
+      grid-column: 1 / 6;
+      grid-row: 1 / 5;
+      background: linear-gradient(135deg, #7A1E2C, #4E131C);
+    }
+
+    .map-node-b34 {
+      grid-column: 8 / 13;
+      grid-row: 1 / 5;
+      background: linear-gradient(135deg, #24573B, #173826);
+    }
+
+    .map-node-b32 {
+      grid-column: 1 / 6;
+      grid-row: 6 / 9;
+      background: linear-gradient(135deg, #6B4913, #432E0C);
+    }
+
+    .map-node-b38 {
+      grid-column: 8 / 13;
+      grid-row: 6 / 9;
+      background: linear-gradient(135deg, #2D4C63, #192D3C);
+    }
+
+    .map-node-title {
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .map-node-meta {
+      font-size: 11.5px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .map-node-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .map-detail-card {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 14px;
+      background: var(--card-subtle);
+      border: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    /* ---------------- Cart Drawer ---------------- */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 27, 23, 0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      z-index: 400;
+    }
+
+    .drawer-overlay.show {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -450px;
+      width: 420px;
+      max-width: 92vw;
+      height: 100%;
+      background: var(--card);
+      z-index: 401;
+      box-shadow: var(--shadow-lg);
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer.show {
+      right: 0;
+    }
+
+    .drawer-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drawer-body {
+      padding: 20px 22px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .drawer-foot {
+      padding: 18px 22px;
+      border-top: 1px solid var(--line);
+      background: var(--card-subtle);
+    }
+
+    .cart-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      margin-bottom: 12px;
+    }
+
+    .promo-box {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .promo-input {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      font-size: 13px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .promo-success-pill {
+      display: none;
+      background: var(--mint-soft);
+      color: var(--mint);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .promo-success-pill.show {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cart-fab {
+      position: fixed;
+      bottom: 26px;
+      right: 26px;
+      z-index: 120;
+      background: var(--chili);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 13px 22px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 16px 32px -6px rgba(122, 30, 44, 0.55);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition);
+    }
+
+    .cart-fab:hover {
+      transform: scale(1.04);
+      background: var(--chili-dark);
+    }
+
+    .cart-fab.show {
+      display: inline-flex;
+    }
+
+    /* ---------------- Track Order & Live Simulation ---------------- */
+    .track-layout {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .qr-card {
+      padding: 28px;
+      text-align: center;
+      border-radius: 22px;
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      margin: 16px 0;
+      padding: 12px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      display: inline-block;
+    }
+
+    .order-id-badge {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+      color: var(--ink);
+    }
+
+    .pickup-counter-tag {
+      display: inline-block;
+      background: var(--chili);
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 800;
+      margin-top: 10px;
+    }
+
+    .timeline {
+      padding: 26px;
+      border-radius: 22px;
+    }
+
+    .tl-row {
+      display: flex;
+      gap: 16px;
+      padding-bottom: 24px;
+      position: relative;
+    }
+
+    .tl-row:last-child {
+      padding-bottom: 0;
+    }
+
+    .tl-line {
+      position: absolute;
+      left: 13px;
+      top: 30px;
+      bottom: 0;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .tl-row:last-child .tl-line {
+      display: none;
+    }
+
+    .tl-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--steel-2);
+      border: 2.5px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 2;
+      font-size: 12px;
+      transition: var(--transition);
+    }
+
+    .tl-dot.done {
+      background: var(--mint);
+      border-color: var(--mint);
+      color: #fff;
+    }
+
+    .tl-dot.now {
+      background: var(--turmeric);
+      border-color: var(--turmeric);
+      color: #3A2607;
+      animation: pulse-yellow 1.6s infinite;
+    }
+
+    @keyframes pulse-yellow {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(244, 162, 40, 0.6);
+      }
+
+      70% {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 8px rgba(244, 162, 40, 0);
+      }
+
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(244, 162, 40, 0);
+      }
+    }
+
+    .tl-title {
+      font-size: 14.5px;
+      font-weight: 800;
+    }
+
+    .tl-sub {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    .prep-progress-bar {
+      height: 8px;
+      background: var(--steel-2);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+
+    .prep-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--turmeric), var(--mint));
+      width: 25%;
+      transition: width 0.6s ease;
+    }
+
+    /* ---------------- Modals ---------------- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 27, 23, 0.6);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--card);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 420px;
+      padding: 30px 28px;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--ink-muted);
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: var(--ink);
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-soft);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      font-size: 14px;
+      font-family: inherit;
+      padding: 12px 14px;
+      border-radius: 11px;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    input:focus {
+      border-color: var(--chili);
+      box-shadow: 0 0 0 3px var(--chili-glow);
+    }
+
+    .otp-row {
+      display: flex;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .otp-box {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 800;
+      padding: 12px 0;
+    }
+
+    .sms-preview {
+      background: var(--steel);
+      border: 1.5px dashed var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .sms-preview.show {
+      display: block;
+    }
+
+    .error-text {
+      font-size: 12px;
+      color: var(--chili);
+      font-weight: 600;
+      margin-top: -8px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .error-text.show {
+      display: block;
+    }
+
+    /* Wallet Recharge Modal */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .preset-chip {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      text-align: center;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      background: var(--card);
+      transition: var(--transition);
+    }
+
+    .preset-chip:hover,
+    .preset-chip.active {
+      border-color: var(--turmeric-deep);
+      background: var(--turmeric-soft);
+    }
+
+    .upi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .upi-opt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .upi-opt:hover {
+      border-color: var(--ink);
+    }
+
+    /* Payment Method & UPI Checkout Styles */
+    .pay-method-option {
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .pay-method-option:hover {
+      border-color: var(--chili) !important;
+      transform: translateY(-1px);
+    }
+
+    .upi-app-btn {
+      transition: var(--transition);
+      text-decoration: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .upi-app-btn:hover {
+      border-color: var(--chili) !important;
+      background: var(--chili-soft) !important;
+      color: var(--chili-dark) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(166, 41, 58, 0.12);
+    }
+
+    #upi-qrcode-container canvas,
+    #upi-qrcode-container img {
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .badge-live-upi {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #EBF7F0;
+      color: #2E8B57;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .badge-live-upi::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: #2E8B57;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #2E8B57;
+    }
+
+    /* Print / Slip Modal */
+    .receipt-slip {
+      background: #fff;
+      border: 2px dashed var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: monospace;
+      font-size: 12.5px;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translate(-50%, 14px);
+      background: #1F1B17;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
+      font-weight: 700;
+      z-index: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* ---------------- Footer ---------------- */
+    footer {
+      background: #1C1714;
+      color: #E8E2D7;
+      padding: 50px 0 28px;
+      margin-top: 50px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer h4 {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    footer p,
+    footer li {
+      font-size: 13px;
+      color: #BBB09E;
+      margin-bottom: 8px;
+    }
+
+    .footer-bottom {
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #8F8474;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ---------------- Responsive ---------------- */
+    @media (max-width: 920px) {
+      .nav-links {
+        position: fixed;
+        top: 62px;
+        left: 0;
+        right: 0;
+        background: var(--card);
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+        display: none;
+        box-shadow: var(--shadow-md);
+      }
+
+      .nav-links.show {
+        display: flex;
+      }
+
+      .hamburger {
+        display: block;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .vendor-sidebar {
+        position: static;
+      }
+
+      .track-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .map-diagram {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        gap: 10px;
+      }
+
+      .map-node-mall,
+      .map-node-b34,
+      .map-node-b32,
+      .map-node-b38 {
+        grid-column: auto;
+        grid-row: auto;
+      }
+
+      .map-road-h,
+      .map-road-v {
+        display: none;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Table Booking & Sitting Area Styles */
+    .table-card {
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .table-card:hover {
+      border-color: var(--turmeric);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .table-card.selected {
+      border-color: var(--chili) !important;
+      background: var(--chili-soft) !important;
+      box-shadow: 0 0 0 2px var(--chili);
+    }
+
+    .table-card.occupied {
+      background: #FAF9F7;
+      opacity: 0.85;
+    }
+
+    .table-number-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .table-seat-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--steel-2);
+      color: var(--ink-soft);
+    }
+
+    .dining-opt {
+      user-select: none;
+      transition: var(--transition);
+    }
+
+    .dining-opt:hover {
+      transform: translateY(-1px);
+    }
+
+    .dining-opt.checked {
+      border-color: var(--chili) !important;
+      background: var(--chili-soft) !important;
+    }
+
+    .table-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .table-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Live Campus Announcement Ticker -->
+  <div class="ticker-bar">
+    <div class="wrap">
+      <div class="ticker-content" id="ticker-content">
+        <div class="ticker-item">⚡ <b>Express Pickup:</b> Block 34 Canteen (Punjabi Rasoi) wait time under 5 min</div>
+        <div class="ticker-item">🔥 <b>Lunch Rush Alert:</b> Uni-Mall Food Court occupancy currently at 86%</div>
+        <div class="ticker-item">🎓 <b>CSE Class Sync:</b> Order 50 min before class windup (between class end &amp; next start) to collect fresh at counter
+        </div>
+        <div class="ticker-item">🪑 <b>Sitting Table Booking:</b> Live table allotment available · Food served hot on your table on time</div>
+        <div class="ticker-item">🎁 <b>Promo Code:</b> Use <code>LPUFIRST</code> for ₹30 off your first pre-order</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="brand" onclick="showPage('page-home')">
+        <div class="brand-mark">LF</div>
+        <div>
+          <div style="line-height: 1;">LPU Food</div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--ink-soft); letter-spacing: 0.5px;">CAMPUS EXPRESS
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav-links" id="nav-links">
+        <button class="nav-link active" data-page="page-home" onclick="showPage('page-home')">Home</button>
+        <button class="nav-link" data-page="page-menu" onclick="showPage('page-menu')">Order Food</button>
+        <button class="nav-link" data-page="page-tables" onclick="showPage('page-tables')">
+          🪑 Table Booking
+          <span class="nav-badge" id="nav-table-free-badge" style="display:inline-block; background:var(--mint); color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px; margin-left:3px;">16 Free</span>
+        </button>
+        <button class="nav-link" data-page="page-crowd" onclick="showPage('page-crowd')">Campus Crowd Map</button>
+        <button class="nav-link" data-page="page-track" onclick="showPage('page-track')">
+          Track Order
+          <span class="nav-badge" id="track-badge"></span>
+        </button>
+        <button class="nav-link" data-page="page-contact" onclick="showPage('page-contact')">Account &amp; Help</button>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Audio Toggle -->
+        <button class="sound-btn" id="sound-btn" onclick="toggleAudio()" title="Toggle Sound Feedback">🔊</button>
+
+        <!-- Campus Wallet Button -->
+        <div class="wallet-chip" onclick="openRechargeModal()" title="Top up Campus Wallet">
+          <span class="add-sym">+</span>
+          <span id="nav-wallet-val">₹460</span>
+        </div>
+
+        <!-- Auth area -->
+        <div id="nav-logged-out">
+          <button class="btn btn-primary btn-sm" onclick="openLogin()">Log in</button>
+        </div>
+        <div id="nav-logged-in" style="display:none;">
+          <div class="nav-user" onclick="showPage('page-contact')">
+            <div class="avatar" id="nav-avatar">S</div>
+            <span id="nav-name">Student</span>
+          </div>
+        </div>
+
+        <button class="hamburger" onclick="document.getElementById('nav-links').classList.toggle('show')">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ================= PAGE: HOME ================= -->
+    <section class="page active" id="page-home">
+      <div class="hero">
+        <div class="wrap hero-inner">
+          <div>
+            <div class="eyebrow-badge">
+              <span style="font-size: 14px;">🎓</span> BTech CSE Mini Project · Smart Food-Tech 2.0
+            </div>
+            <h1>
+              Skip the lunch rush.<br>
+              <span class="gradient-text">Pre-order ahead at LPU.</span>
+            </h1>
+            <p>Uni-Mall and academic canteens get choked between 12:30–2:00 PM. Lock in your meal before class ends,
+              monitor real-time crowd heatmaps, and pick up your hot tray with an instant QR pass.</p>
+            <div class="hero-cta">
+              <button class="btn btn-turmeric" onclick="showPage('page-menu')">Order Food Now →</button>
+              <button class="btn btn-outline" style="border-color:#fff; color:#fff;" onclick="showPage('page-tables')">🪑 Book Table &amp; Dine In</button>
+              <button class="btn btn-ghost" style="border-color:#fff; color:#fff;" onclick="showPage('page-crowd')">View
+                Campus Heatmap</button>
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <!-- Class Sync Selector Box -->
+            <div class="sync-card">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:11px; font-weight:800; color:#7B4900; letter-spacing:0.5px;">CAMPUS TIMETABLE SYNC
+                </div>
+                <span class="countdown-badge" id="sync-mode-badge">AUTO SYNC</span>
+              </div>
+              <div class="sync-select-wrap">
+                <select class="select-styled" id="hero-period-select" onchange="onPeriodChange(this.value)">
+                  <option value="3000">Next Class · Ends in 50 min (Class Windup Sync)</option>
+                  <option value="2100">Period 4 · Ends in 35 min (01:30 PM)</option>
+                  <option value="1200">Period 3 · Ends in 20 min (12:40 PM)</option>
+                  <option value="600">Lab Break · Ends in 10 min (02:00 PM)</option>
+                  <option value="300">Custom Quick · Ready in 5 min</option>
+                </select>
+              </div>
+              <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div class="countdown-display" id="countdown-text">50:00</div>
+                  <div style="font-size:11.5px; color:#6B4913; margin-top:1px;">Pre-order 50 min before class windup (between classes)</div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="showPage('page-menu')">Pick Vendor</button>
+              </div>
+            </div>
+
+            <div
+              style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:10px; display:flex; justify-content:space-between;">
+              <span>LIVE COUNTER CONGESTION</span>
+              <span style="font-size:11px; color:var(--chili); font-weight:700; cursor:pointer;"
+                onclick="showPage('page-crowd')">View Full Map →</span>
+            </div>
+
+            <div class="mini-density">
+              <div class="mini-density-row" onclick="showPage('page-crowd')" style="cursor:pointer;">
+                <span><span class="dot dot-red" style="display:inline-block; margin-right:8px;"></span>Uni-Mall Food
+                  Court</span>
+                <span style="font-weight:700; color:var(--chili);">~22 min wait (High)</span>
+              </div>
+              <div class="mini-density-row" onclick="showPage('page-crowd')" style="cursor:pointer;">
+                <span><span class="dot dot-yellow" style="display:inline-block; margin-right:8px;"></span>Block 32
+                  Canteen</span>
+                <span style="font-weight:700; color:var(--turmeric-deep);">~10 min wait</span>
+              </div>
+              <div class="mini-density-row" onclick="showPage('page-crowd')" style="cursor:pointer;">
+                <span><span class="dot dot-green" style="display:inline-block; margin-right:8px;"></span>Block 34
+                  (Punjabi Rasoi)</span>
+                <span style="font-weight:700; color:var(--mint);">~3 min (Express)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Popular Outlets Grid -->
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <h2>Featured Campus Kitchens</h2>
+            <p>Top-rated student canteens and kiosks ranked by counter turnaround speed.</p>
+          </div>
+          <span class="link-more" onclick="showPage('page-menu')">Explore all 5 outlets →</span>
+        </div>
+        <div class="grid-3" id="home-vendor-grid"></div>
+      </div>
+
+      <!-- Feature Highlight Banner -->
+      <div class="wrap section" style="padding-top:0;">
+        <div class="card"
+          style="padding:28px; background:linear-gradient(135deg, #FFF9F0 0%, #F5EFE3 100%); border:1.5px solid var(--line); display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;">
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div
+              style="font-size:28px; background:#fff; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); flex-shrink:0;">
+              ⏱️</div>
+            <div>
+              <h4 style="font-size:15px; margin-bottom:4px;">No Standing in Line</h4>
+              <p style="font-size:12.5px; color:var(--ink-soft);">Order while your professor is wrapping up. Meal is
+                boxed the exact minute class disperses.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div
+              style="font-size:28px; background:#fff; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); flex-shrink:0;">
+              📲</div>
+            <div>
+              <h4 style="font-size:15px; margin-bottom:4px;">QR Pickup Token</h4>
+              <p style="font-size:12.5px; color:var(--ink-soft);">Flash your encrypted dynamic QR at the express counter
+                window. Grab and go in under 30 seconds.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div
+              style="font-size:28px; background:#fff; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); flex-shrink:0;">
+              💳</div>
+            <div>
+              <h4 style="font-size:15px; margin-bottom:4px;">Direct Campus Wallet</h4>
+              <p style="font-size:12.5px; color:var(--ink-soft);">Instant 1-tap checkout linked with simulated campus
+                UPI and promo discounts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PAGE: CAMPUS CROWD MAP ================= -->
+    <section class="page" id="page-crowd">
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <h2>Interactive Campus Crowd Heatmap</h2>
+            <p>Live density analytics aggregated from counter weight sensors &amp; anonymous doorway presence cameras
+              across LPU.</p>
+          </div>
+          <button class="btn btn-subtle btn-sm" onclick="simulateCrowdRefresh()">🔄 Refresh Sensor Feeds</button>
+        </div>
+
+        <div class="campus-map-card">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <div style="font-size:13px; font-weight:800; color:var(--ink-soft);">CLICK A ZONE TO INSPECT QUEUE &amp;
+              ORDER</div>
+            <div class="map-legend">
+              <div class="map-legend-item"><span class="dot dot-green"></span> Low (< 5 min)</div>
+                  <div class="map-legend-item"><span class="dot dot-yellow"></span> Moderate (10–15 min)</div>
+                  <div class="map-legend-item"><span class="dot dot-red"></span> Peak Rush (20+ min)</div>
+              </div>
+            </div>
+
+            <!-- Schematic Campus Diagram -->
+            <div class="map-diagram" id="campus-map-diagram">
+              <div class="map-road-h">ACADEMIC BOULEVARD — CENTRAL PASSAGE</div>
+              <div class="map-road-v">UNIMALL DRIVE</div>
+
+              <!-- Uni-Mall Node -->
+              <div class="map-node map-node-mall" onclick="selectMapSpot('quick')">
+                <div>
+                  <div class="map-node-title">
+                    <span>🏢 Uni-Mall Food Court</span>
+                    <span class="dot dot-red"></span>
+                  </div>
+                  <div class="map-node-meta">Ground &amp; 1st Floor · Fast Food &amp; Shakes</div>
+                </div>
+                <div class="map-node-stats">
+                  <span>86% Peak Rush</span>
+                  <span>Wait: ~22 min</span>
+                </div>
+              </div>
+
+              <!-- Block 34 Node -->
+              <div class="map-node map-node-b34" onclick="selectMapSpot('rasoi')">
+                <div>
+                  <div class="map-node-title">
+                    <span>🍛 Block 34 (Punjabi Rasoi)</span>
+                    <span class="dot dot-green"></span>
+                  </div>
+                  <div class="map-node-meta">CSE &amp; Mechanical Canteen · Thalis &amp; Meals</div>
+                </div>
+                <div class="map-node-stats">
+                  <span>24% Low Flow</span>
+                  <span>Wait: ~3 min (Express)</span>
+                </div>
+              </div>
+
+              <!-- Block 32 Node -->
+              <div class="map-node map-node-b32" onclick="selectMapSpot('south')">
+                <div>
+                  <div class="map-node-title">
+                    <span>🥗 Block 32 (South Express)</span>
+                    <span class="dot dot-yellow"></span>
+                  </div>
+                  <div class="map-node-meta">Civil &amp; Bio-tech Block · Dosas &amp; Idlis</div>
+                </div>
+                <div class="map-node-stats">
+                  <span>52% Moderate</span>
+                  <span>Wait: ~11 min</span>
+                </div>
+              </div>
+
+              <!-- Block 38 Node -->
+              <div class="map-node map-node-b38" onclick="selectMapSpot('chai')">
+                <div>
+                  <div class="map-node-title">
+                    <span>☕ Block 38 (Library Chai Bar)</span>
+                    <span class="dot dot-green"></span>
+                  </div>
+                  <div class="map-node-meta">Central Library Corridor · Snacks &amp; Maggi</div>
+                </div>
+                <div class="map-node-stats">
+                  <span>32% Normal</span>
+                  <span>Wait: ~5 min</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selected Zone Detail Callout -->
+            <div class="map-detail-card" id="map-detail-card">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <h4 id="map-detail-title" style="font-size:16px;">Block 34 Canteen (Punjabi Rasoi)</h4>
+                  <span class="pill" id="map-detail-pill" style="background:var(--mint-soft); color:var(--mint);">Low
+                    Congestion</span>
+                </div>
+                <p id="map-detail-desc" style="font-size:12.5px; color:var(--ink-soft); margin-top:4px;">
+                  Recommended pickup spot right now. Sensor load: 18 students in counter area. Express counter ready.
+                </p>
+              </div>
+              <button class="btn btn-primary btn-sm" id="map-order-btn" onclick="openVendorFromMap('rasoi')">
+                Order from this Outlet →
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Density Cards -->
+          <div class="grid-4" id="crowd-grid"></div>
+        </div>
+    </section>
+
+    <!-- ================= PAGE: TABLE BOOKING & SITTING AREA ================= -->
+    <section class="page" id="page-tables">
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <h2>Campus Sitting Area &amp; Table Booking</h2>
+            <p>Reserve an available table in advance or get one allotted for your meal. Enjoy hot food served right to your table on time.</p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-turmeric btn-sm" onclick="autoAllotTableAndOrder()">⚡ Auto-Allot Table &amp; Order</button>
+            <button class="btn btn-subtle btn-sm" onclick="refreshTableStatus()">🔄 Refresh Status</button>
+          </div>
+        </div>
+
+        <!-- Sitting Area Stats Banner -->
+        <div class="table-stats-grid" style="margin-bottom:24px;">
+          <div class="card" style="padding:16px; text-align:center;">
+            <div style="font-size:24px;">🪑</div>
+            <div style="font-size:22px; font-weight:800; color:var(--ink); margin-top:4px;" id="stat-total-tables">21</div>
+            <div style="font-size:12px; color:var(--ink-soft);">Total Sitting Tables</div>
+          </div>
+          <div class="card" style="padding:16px; text-align:center; background:linear-gradient(135deg, #F0FDF4, #DCFCE7); border:1.5px solid #86EFAC;">
+            <div style="font-size:24px;">🟢</div>
+            <div style="font-size:22px; font-weight:800; color:#15803D; margin-top:4px;" id="stat-free-tables">16</div>
+            <div style="font-size:12px; color:#166534; font-weight:700;">Available Right Now</div>
+          </div>
+          <div class="card" style="padding:16px; text-align:center;">
+            <div style="font-size:24px;">👥</div>
+            <div style="font-size:22px; font-weight:800; color:var(--chili); margin-top:4px;" id="stat-busy-tables">5</div>
+            <div style="font-size:12px; color:var(--ink-soft);">Occupied / In Dining</div>
+          </div>
+          <div class="card" style="padding:16px; text-align:center; background:linear-gradient(135deg, #FFF9EB, #FEF3C7); border:1.5px solid #FCD34D;">
+            <div style="font-size:24px;">⏱️</div>
+            <div style="font-size:22px; font-weight:800; color:var(--turmeric-deep); margin-top:4px;">On-Time</div>
+            <div style="font-size:12px; color:#7B4900; font-weight:700;">Direct Table Service</div>
+          </div>
+        </div>
+
+        <!-- Zone Filters -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;" id="table-zone-filter-btns">
+            <button class="pill active" style="cursor:pointer;" onclick="filterTablesByZone('all', this)">All Canteen Zones</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('quick', this)">🏢 Uni-Mall Food Court</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('rasoi', this)">🍛 Block 34 (Punjabi Rasoi)</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('south', this)">🥗 Block 32 (South Express)</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('chai', this)">☕ Block 38 Library Café</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('juice', this)">🏋️ Sports Arena Hub</button>
+          </div>
+          <div style="display:flex; gap:6px;" id="table-seat-filter-btns">
+            <button class="pill active" style="cursor:pointer;" onclick="filterTablesBySeat('all', this)">All Capacities</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesBySeat(2, this)">👥 2 Seats</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesBySeat(4, this)">👥 4 Seats</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesBySeat(6, this)">👥 6+ Seats</button>
+          </div>
+        </div>
+
+        <!-- Table Cards Grid -->
+        <div class="grid-3" id="table-display-grid"></div>
+      </div>
+    </section>
+
+    <!-- ================= PAGE: ORDER FOOD (MENU) ================= -->
+    <section class="page" id="page-menu">
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <h2>Campus Food Ordering</h2>
+            <p>Search dishes across kitchens or browse your favourite canteen menu.</p>
+          </div>
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="menu-controls">
+          <div class="search-row">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="menu-search-input"
+                placeholder="Search dish e.g. Dosa, Thali, Burger, Cold Coffee, Chai..."
+                oninput="onSearchInput(this.value)">
+            </div>
+            <select class="select-styled" style="max-width:180px;" id="sort-select" onchange="onSortChange(this.value)">
+              <option value="default">Sort: Recommended</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+          </div>
+          <div class="filter-chips">
+            <span style="font-size:12px; font-weight:700; color:var(--ink-soft); margin-right:4px;">Filters:</span>
+            <button class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">All Items</button>
+            <button class="filter-chip" data-filter="veg" onclick="setFilter('veg', this)">Pure Veg 🌱</button>
+            <button class="filter-chip" data-filter="nonveg" onclick="setFilter('nonveg', this)">Non-Veg 🍗</button>
+            <button class="filter-chip" data-filter="budget" onclick="setFilter('budget', this)">Under ₹100 💰</button>
+            <button class="filter-chip" data-filter="bestseller" onclick="setFilter('bestseller', this)">Bestsellers
+              ⭐</button>
+          </div>
+        </div>
+
+        <!-- Main Menu Layout -->
+        <div class="menu-layout">
+          <!-- Vendor List Sidebar -->
+          <div class="vendor-sidebar">
+            <div
+              style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:10px; letter-spacing:0.5px;">
+              CHOOSE OUTLET</div>
+            <div id="vendor-list"></div>
+          </div>
+
+          <!-- Dishes Panel -->
+          <div>
+            <div class="card" style="padding:24px;" id="menu-panel"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PAGE: TRACK ORDER ================= -->
+    <section class="page" id="page-track">
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <h2>Active Order &amp; Live Prep Tracker</h2>
+            <p>Your pickup QR pass updates in real-time as the counter prepares your tray.</p>
+          </div>
+          <div id="track-actions-head"></div>
+        </div>
+        <div id="track-content"></div>
+      </div>
+    </section>
+
+    <!-- ================= PAGE: ACCOUNT & HELP ================= -->
+    <section class="page" id="page-contact">
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <h2>Student Account &amp; Support</h2>
+            <p>Manage your campus wallet balance, view past meal receipts, or reach canteen supervisors.</p>
+          </div>
+        </div>
+
+        <!-- Profile & Wallet Box -->
+        <div id="profile-box" class="card" style="padding:24px; margin-bottom:28px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div class="avatar" id="profile-avatar" style="width:56px; height:56px; font-size:18px;">S</div>
+              <div>
+                <div style="font-weight:800; font-size:18px;" id="profile-name">Student Account</div>
+                <div style="font-size:12.5px; color:var(--ink-soft);" id="profile-meta">+91 98765 43210 · CSE Sem 5
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="text-align:right;">
+                <div style="font-size:11px; color:var(--ink-soft); font-weight:800; letter-spacing:0.5px;">CAMPUS WALLET
+                </div>
+                <div style="font-size:22px; font-weight:800; color:var(--ink);" id="wallet-balance">₹460.00</div>
+              </div>
+              <button class="btn btn-turmeric btn-sm" onclick="openRechargeModal()">+ Top Up</button>
+              <button class="btn btn-outline btn-sm" onclick="openOwnerPaymentConfigModal()" title="Configure receiving UPI and bank details">⚙️ Account Settings</button>
+              <button class="btn btn-subtle btn-sm" onclick="doLogout()">Log out</button>
+            </div>
+          </div>
+
+          <!-- Receiving Account / Payment Settings Banner -->
+          <div style="margin-top:20px; padding:16px 18px; border-radius:14px; background:linear-gradient(135deg, #FFFDFB, var(--chili-soft)); border:1.5px solid rgba(166,41,58,0.2); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:42px; height:42px; border-radius:12px; background:var(--chili); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px;">💰</div>
+              <div>
+                <div style="font-weight:800; font-size:14px; display:flex; align-items:center; gap:8px;">
+                  Food Booking Payment Receiving Account
+                  <span class="badge-live-upi">DIRECT TO ACCOUNT</span>
+                </div>
+                <div style="font-size:12.5px; color:var(--ink-soft); margin-top:2px;">
+                  Payments received at: <b style="color:var(--chili); font-family:monospace;" id="summary-upi-id">rohitkumar.lpu@upi</b> (<span id="summary-payee-name">Rohit Kumar</span>)
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openOwnerPaymentConfigModal()">⚙️ Manage Account</button>
+          </div>
+
+          <div style="margin-top:24px;">
+            <div style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:12px;">ORDER HISTORY</div>
+            <div id="order-history"></div>
+          </div>
+        </div>
+
+        <!-- Support Contacts Grid -->
+        <div class="grid-3" style="margin-bottom:28px;">
+          <div class="card" style="padding:18px; display:flex; gap:14px; align-items:center;">
+            <div
+              style="width:44px; height:44px; border-radius:12px; background:var(--chili-soft); display:flex; align-items:center; justify-content:center; font-size:20px;">
+              📞</div>
+            <div>
+              <div style="font-weight:700; font-size:14px;">Campus Canteen Helpline</div>
+              <div style="font-size:12.5px; color:var(--ink-soft);">+91 1824 517 000 (Ext. 5100)</div>
+            </div>
+          </div>
+          <div class="card" style="padding:18px; display:flex; gap:14px; align-items:center;">
+            <div
+              style="width:44px; height:44px; border-radius:12px; background:var(--mint-soft); display:flex; align-items:center; justify-content:center; font-size:20px;">
+              💬</div>
+            <div>
+              <div style="font-weight:700; font-size:14px;">WhatsApp Order Desk</div>
+              <div style="font-size:12.5px; color:var(--ink-soft);">+91 98140 22456 · Refunds &amp; Queries</div>
+            </div>
+          </div>
+          <div class="card" style="padding:18px; display:flex; gap:14px; align-items:center;">
+            <div
+              style="width:44px; height:44px; border-radius:12px; background:var(--amber-soft); display:flex; align-items:center; justify-content:center; font-size:20px;">
+              🏢</div>
+            <div>
+              <div style="font-weight:700; font-size:14px;">Student Welfare Office</div>
+              <div style="font-size:12.5px; color:var(--ink-soft);">Block 4, Ground Floor</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:24px;">
+          <h3 style="font-size:17px; margin-bottom:10px;">About the Campus Food-Tech System</h3>
+          <p style="font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:10px;">
+            <b>Campus Problem:</b> During the 12:30–2:00 PM peak interval, food courts at Uni-Mall and academic blocks
+            experience bottleneck queues of 25–40 students per counter. Students spend most of their lunch window
+            waiting, leading to skipped meals or late arrival to consecutive classes.
+          </p>
+          <p style="font-size:13px; color:var(--ink-soft); line-height:1.6;">
+            <b>The Engineering Solution:</b> An integrated pre-order workflow synchronised with lecture timetables.
+            Students queue up virtually, meal preparation is staggered to lecture release times, and pickup is
+            facilitated via single-use encrypted QR tokens at dedicated express windows.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= CART DRAWER ================= -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeCart()"></div>
+  <div class="drawer" id="cart-drawer">
+    <div class="drawer-head">
+      <h3 style="font-size:17px; font-weight:800;">Your Food Tray</h3>
+      <button class="modal-close" style="position:static;" onclick="closeCart()">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div id="cart-vendor-name" style="font-size:13px; font-weight:800; color:var(--chili); margin-bottom:14px;"></div>
+      <div id="cart-items"></div>
+
+      <div style="height:1px; background:var(--line); margin:18px 0;"></div>
+
+      <!-- Promo Code Area -->
+      <div style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:8px;">HAVE A PROMO CODE?</div>
+      <div class="promo-box">
+        <input type="text" class="promo-input" id="promo-input" placeholder="e.g. LPUFIRST">
+        <button class="btn btn-subtle btn-sm" onclick="applyPromo()">Apply</button>
+      </div>
+      <div class="promo-success-pill" id="promo-success-pill">
+        <span id="promo-success-text">Promo applied!</span>
+        <span style="cursor:pointer; font-weight:800;" onclick="removePromo()">✕</span>
+      </div>
+
+      <!-- Bill Details -->
+      <div style="background:var(--card-subtle); border-radius:12px; padding:14px; margin:16px 0;">
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;">
+          <span style="color:var(--ink-soft);">Subtotal</span>
+          <span id="bill-subtotal" style="font-weight:700;">₹0</span>
+        </div>
+        <div
+          style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; color:var(--mint); display:none;"
+          id="bill-discount-row">
+          <span>Campus Discount</span>
+          <span id="bill-discount" style="font-weight:700;">-₹0</span>
+        </div>
+        <div
+          style="display:flex; justify-content:space-between; font-size:15px; font-weight:800; margin-top:8px; border-top:1px dashed var(--line); padding-top:8px;">
+          <span>To Pay</span>
+          <span id="cart-total" style="color:var(--chili);">₹0</span>
+        </div>
+      </div>
+
+      <!-- Dining Preference: Dine-In vs Packed -->
+      <div style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:10px;">
+        DINING PREFERENCE · HOW TO ENJOY?
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+        <div class="dining-opt checked" id="dining-opt-dinein" onclick="selectDiningMode('dinein')"
+          style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:12px 10px; border:1.5px solid var(--chili); border-radius:12px; cursor:pointer; background:var(--chili-soft); transition:var(--transition);">
+          <span style="font-size:24px; margin-bottom:4px;">🍽️</span>
+          <div style="font-weight:800; font-size:13px; color:var(--ink);">Eat on Table</div>
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:2px;">Served to sitting table on time</div>
+          <span class="dining-check-icon" id="dining-check-dinein" style="font-size:12px; color:var(--chili); font-weight:800; margin-top:4px;">✓ Selected</span>
+        </div>
+
+        <div class="dining-opt" id="dining-opt-packed" onclick="selectDiningMode('packed')"
+          style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:12px 10px; border:1.5px solid var(--line); border-radius:12px; cursor:pointer; background:#fff; transition:var(--transition);">
+          <span style="font-size:24px; margin-bottom:4px;">🛍️</span>
+          <div style="font-weight:800; font-size:13px; color:var(--ink);">Packed / Takeaway</div>
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:2px;">Sealed box for class/dorm</div>
+          <span class="dining-check-icon" id="dining-check-packed" style="font-size:12px; color:var(--ink-muted); margin-top:4px;">○ Select</span>
+        </div>
+      </div>
+
+      <!-- Allotted Table Banner (Shown when Dine-In is active) -->
+      <div id="cart-table-box" style="margin-bottom:14px; padding:12px 14px; border-radius:12px; background:linear-gradient(135deg, #FFF7EB 0%, #FEE8C8 100%); border:1.5px solid rgba(244, 162, 40, 0.5); display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:38px; height:38px; border-radius:10px; background:var(--turmeric); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">🪑</div>
+          <div>
+            <div style="font-size:10.5px; font-weight:800; color:#7B4900; letter-spacing:0.4px;">ALLOTTED SITTING TABLE</div>
+            <div style="font-weight:800; font-size:13px; color:var(--ink);" id="cart-allotted-table-text">Table T-02 · Uni-Mall (4 Seats)</div>
+            <div style="font-size:11px; color:#6B4913; margin-top:1px;">⚡ Hot food served directly on table on time</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="background:#fff; font-size:11px; padding:6px 10px; flex-shrink:0;" onclick="openTableSelectModal()">Change 🪑</button>
+      </div>
+
+      <!-- Packed Notice (Shown when Packed is active) -->
+      <div id="cart-packed-box" style="display:none; margin-bottom:14px; padding:12px 14px; border-radius:12px; background:var(--card-subtle); border:1.5px solid var(--line); align-items:center; gap:10px;">
+        <span style="font-size:22px;">📦</span>
+        <div>
+          <div style="font-size:10.5px; font-weight:800; color:var(--ink-soft); letter-spacing:0.4px;">PACKED FOR TAKEAWAY</div>
+          <div style="font-size:12.5px; font-weight:700; color:var(--ink);">Freshly boxed with eco-friendly cutlery</div>
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:1px;">Ready at express counter window right when bell rings</div>
+        </div>
+      </div>
+
+      <!-- Pickup Slot Options -->
+      <div style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:10px;">WHEN SHOULD IT BE READY?
+      </div>
+      <div class="slot-option checked" onclick="selectSlot(this, 'sync')"
+        style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1.5px solid var(--chili); border-radius:12px; margin-bottom:8px; cursor:pointer; background:var(--chili-soft);">
+        <div>
+          <div style="font-weight:800; font-size:13px;" id="slot-class-text">Match Class Windup (in ~50 min)</div>
+          <div style="font-size:11.5px; color:var(--ink-soft); margin-top:2px;">Ordered between classes · Freshly boxed at lecture windup
+          </div>
+        </div>
+        <span style="font-size:16px; color:var(--chili);">✓</span>
+      </div>
+      <div class="slot-option" onclick="selectSlot(this, 'asap')"
+        style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; cursor:pointer; background:#fff;">
+        <div>
+          <div style="font-weight:800; font-size:13px;">Express Prep (ASAP ~8–10 min)</div>
+          <div style="font-size:11.5px; color:var(--ink-soft); margin-top:2px;">If you have a free lecture right now
+          </div>
+        </div>
+        <span style="font-size:14px; color:var(--ink-muted);">○</span>
+      </div>
+
+      <!-- Payment Method Selection -->
+      <div style="font-size:12px; font-weight:800; color:var(--ink-soft); margin:16px 0 8px;">PAYMENT METHOD</div>
+      
+      <div class="pay-method-option" id="pay-opt-upi" onclick="selectPaymentMethod('upi')"
+        style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1.5px solid var(--chili); border-radius:12px; margin-bottom:8px; cursor:pointer; background:var(--chili-soft);">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:20px;">⚡</span>
+          <div>
+            <div style="font-weight:800; font-size:13px; display:flex; align-items:center; gap:6px;">
+              Direct UPI / GPay / PhonePe / QR
+              <span style="font-size:10px; background:var(--chili); color:#fff; padding:1px 6px; border-radius:4px; font-weight:700;">DIRECT TO ACCOUNT</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--ink-soft); margin-top:2px;">Scan QR or pay with UPI directly to Rohit Kumar</div>
+          </div>
+        </div>
+        <span class="pay-check-icon" style="font-size:16px; color:var(--chili); font-weight:800;">✓</span>
+      </div>
+
+      <div class="pay-method-option" id="pay-opt-wallet" onclick="selectPaymentMethod('wallet')"
+        style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; margin-bottom:8px; cursor:pointer; background:#fff;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:20px;">💳</span>
+          <div>
+            <div style="font-weight:800; font-size:13px; display:flex; align-items:center; gap:6px;">
+              Campus Student Wallet
+              <span id="cart-wallet-badge" style="font-size:10px; background:var(--turmeric-soft); color:var(--turmeric-deep); padding:1px 6px; border-radius:4px; font-weight:700;">Bal: ₹460</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--ink-soft); margin-top:2px;">1-tap settlement from prepaid campus credits</div>
+          </div>
+        </div>
+        <span class="pay-check-icon" style="font-size:14px; color:var(--ink-muted);">○</span>
+      </div>
+
+      <div class="pay-method-option" id="pay-opt-counter" onclick="selectPaymentMethod('counter')"
+        style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; cursor:pointer; background:#fff;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:20px;">💵</span>
+          <div>
+            <div style="font-weight:800; font-size:13px;">Pay at Pickup Counter</div>
+            <div style="font-size:11.5px; color:var(--ink-soft); margin-top:2px;">Cash or UPI upon receiving meal tray</div>
+          </div>
+        </div>
+        <span class="pay-check-icon" style="font-size:14px; color:var(--ink-muted);">○</span>
+      </div>
+    </div>
+
+    <div class="drawer-foot">
+      <button class="btn btn-primary btn-full" id="place-order-btn" onclick="handleCheckout()">
+        Proceed to Pay · <span id="place-order-total">₹0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Cart Button -->
+  <button class="cart-fab" id="cart-fab" onclick="openCart()">
+    <span>🛒</span>
+    <span id="cart-fab-text">0 items · ₹0</span>
+  </button>
+
+  <!-- ================= MODAL: LOGIN ================= -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeLogin()">✕</button>
+
+      <!-- Step 1: Mobile -->
+      <div class="modal-step active" id="step-mobile">
+        <h3 style="font-size:20px; font-weight:800; margin-bottom:6px;">LPU Campus Sign In</h3>
+        <p style="font-size:13px; color:var(--ink-soft); margin-bottom:20px;">Enter your student mobile number for
+          instant OTP verification.</p>
+        <div class="field">
+          <label>Mobile Number</label>
+          <div style="display:flex; gap:10px;">
+            <div
+              style="width:60px; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--line); border-radius:11px; background:#fff; font-weight:700; font-size:14px;">
+              +91</div>
+            <input id="mobile-input" type="tel" placeholder="98765 43210" maxlength="10" value="9876543210">
+          </div>
+        </div>
+        <div class="error-text" id="mobile-error">Enter a valid 10-digit mobile number.</div>
+        <button class="btn btn-primary btn-full" onclick="sendOtp()">Send OTP Code →</button>
+      </div>
+
+      <!-- Step 2: OTP -->
+      <div class="modal-step" id="step-otp">
+        <h3 style="font-size:20px; font-weight:800; margin-bottom:6px;">Enter Security Code</h3>
+        <p style="font-size:13px; color:var(--ink-soft); margin-bottom:10px;" id="otp-phone-display">Code sent to +91
+          98765 43210</p>
+        <div class="sms-preview show" id="sms-preview"></div>
+        <div class="otp-row">
+          <input class="otp-box" type="text" maxlength="1">
+          <input class="otp-box" type="text" maxlength="1">
+          <input class="otp-box" type="text" maxlength="1">
+          <input class="otp-box" type="text" maxlength="1">
+        </div>
+        <div class="error-text" id="otp-error">Incorrect code. Please check demo inbox above.</div>
+        <button class="btn btn-primary btn-full" onclick="verifyOtp()">Verify &amp; Continue</button>
+        <div style="text-align:center; margin-top:14px;">
+          <button class="btn-subtle btn-sm" onclick="backToMobile()">← Change Number</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Setup Profile -->
+      <div class="modal-step" id="step-setup">
+        <h3 style="font-size:20px; font-weight:800; margin-bottom:6px;">Student Information</h3>
+        <p style="font-size:13px; color:var(--ink-soft); margin-bottom:18px;">Used for identification at the express
+          pickup counters.</p>
+        <div class="field">
+          <label>Full Name</label>
+          <input id="setup-name" type="text" value="Rohit Kumar" placeholder="e.g. Rohit Kumar">
+        </div>
+        <div class="field">
+          <label>Campus Block / Hostel</label>
+          <input id="setup-block" type="text" value="Block 34 (CSE Block)">
+        </div>
+        <div class="field">
+          <label>Course &amp; Section</label>
+          <input id="setup-course" type="text" value="BTech CSE, 1st Year">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="finishSetup()">Start Ordering 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: WALLET RECHARGE ================= -->
+  <div class="modal-overlay" id="wallet-modal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeRechargeModal()">✕</button>
+      <h3 style="font-size:20px; font-weight:800; margin-bottom:4px;">Campus Wallet Top Up</h3>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:18px;">Add credits for 1-tap zero-wait counter
+        settlement.</p>
+
+      <div
+        style="background:var(--turmeric-soft); padding:14px; border-radius:12px; border:1px solid rgba(244,162,40,0.4); margin-bottom:14px;">
+        <div style="font-size:11.5px; font-weight:700; color:#7B4900;">CURRENT BALANCE</div>
+        <div style="font-size:24px; font-weight:800; color:#4B2E00;" id="modal-wallet-curr">₹460.00</div>
+      </div>
+
+      <label>Select Amount</label>
+      <div class="preset-grid">
+        <div class="preset-chip active" onclick="selectPresetAmount(100, this)">+₹100</div>
+        <div class="preset-chip" onclick="selectPresetAmount(200, this)">+₹200</div>
+        <div class="preset-chip" onclick="selectPresetAmount(500, this)">+₹500</div>
+      </div>
+
+      <div class="field">
+        <label>Or Enter Custom Amount</label>
+        <input type="number" id="custom-wallet-input" value="100" min="10" max="2000">
+      </div>
+
+      <label>Recharge Payment Method (Direct to Rohit's Account)</label>
+      <div class="upi-grid">
+        <div class="upi-opt" onclick="startUpiWalletRecharge('Google Pay')"><span>🟢</span> GPay UPI</div>
+        <div class="upi-opt" onclick="startUpiWalletRecharge('PhonePe')"><span>🟣</span> PhonePe</div>
+        <div class="upi-opt" onclick="startUpiWalletRecharge('Paytm')"><span>🔵</span> Paytm</div>
+        <div class="upi-opt" onclick="startUpiWalletRecharge('Any UPI')"><span>⚡</span> Scan UPI QR</div>
+      </div>
+      <div style="margin-top:12px; text-align:center;">
+        <button class="btn btn-subtle btn-sm" onclick="doRecharge('Demo Campus Credit')" style="font-size:11.5px; color:var(--ink-soft); text-decoration:underline;">
+          🧪 Or test with Instant Demo Top-Up (Simulation)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: DIRECT UPI PAYMENT ================= -->
+  <div class="modal-overlay" id="upi-payment-modal">
+    <div class="modal-card" style="max-width:440px; max-height:92vh; overflow-y:auto; padding:24px;">
+      <button class="modal-close" onclick="closeUpiPaymentModal()">✕</button>
+      
+      <div style="text-align:center; margin-bottom:14px;">
+        <div style="display:inline-flex; align-items:center; gap:6px; background:var(--chili-soft); color:var(--chili); padding:4px 12px; border-radius:999px; font-size:11.5px; font-weight:800; margin-bottom:8px;">
+          <span>⚡</span> DIRECT ACCOUNT PAYMENT
+        </div>
+        <h3 style="font-size:20px; font-weight:800; margin-bottom:4px;">Scan &amp; Pay via UPI</h3>
+        <p style="font-size:12.5px; color:var(--ink-soft);">Money is credited directly to <b id="upi-modal-recipient-name">Rohit Kumar</b>'s account</p>
+      </div>
+
+      <!-- Payable Amount Display -->
+      <div style="background:linear-gradient(135deg, var(--chili-soft), #FFFDF9); border:1.5px solid rgba(166,41,58,0.25); border-radius:14px; padding:14px 18px; text-align:center; margin-bottom:16px;">
+        <div style="font-size:11.5px; font-weight:800; color:var(--chili); letter-spacing:0.04em;">TOTAL AMOUNT PAYABLE</div>
+        <div style="font-size:32px; font-weight:800; color:var(--chili); line-height:1.2; margin:4px 0;" id="upi-modal-amount">₹0.00</div>
+        <div style="font-size:11.5px; color:var(--ink-soft);" id="upi-modal-order-desc">Food Booking Pre-Payment</div>
+      </div>
+
+      <!-- Dynamic QR Code Container -->
+      <div style="background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:16px; text-align:center; margin-bottom:16px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:800; color:var(--ink-soft); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">
+          Scan using any UPI App
+        </div>
+        <div id="upi-qrcode-container" style="display:flex; justify-content:center; align-items:center; min-height:170px; margin:0 auto;"></div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:10px; font-size:11px; color:var(--ink-muted);">
+          <span>GPay</span> • <span>PhonePe</span> • <span>Paytm</span> • <span>BHIM</span> • <span>Cred</span>
+        </div>
+      </div>
+
+      <!-- UPI ID & Copy Details -->
+      <div style="background:var(--card-subtle); border-radius:12px; padding:12px 14px; margin-bottom:16px; border:1px solid var(--line);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:11px; font-weight:700; color:var(--ink-soft);">RECEIVING UPI ID (VPA)</div>
+            <div style="font-size:13.5px; font-weight:800; color:var(--ink); font-family:monospace; margin-top:2px;" id="upi-modal-id-display">rohitkumar.lpu@upi</div>
+          </div>
+          <button class="btn btn-sm btn-subtle" onclick="copyUpiId()" style="padding:6px 12px; font-size:12px; font-weight:700;">
+            📋 Copy UPI
+          </button>
+        </div>
+      </div>
+
+      <!-- 1-Tap UPI Apps (for Mobile users) -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11.5px; font-weight:800; color:var(--ink-soft); margin-bottom:8px;">TAP TO PAY DIRECTLY (MOBILE UPI APPS)</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <a class="upi-app-btn" id="upi-btn-gpay" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; background:#fff; border:1.5px solid var(--line); border-radius:10px; font-weight:700; font-size:12px; color:var(--ink);">
+            <span style="font-size:16px;">🟢</span> Google Pay
+          </a>
+          <a class="upi-app-btn" id="upi-btn-phonepe" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; background:#fff; border:1.5px solid var(--line); border-radius:10px; font-weight:700; font-size:12px; color:var(--ink);">
+            <span style="font-size:16px;">🟣</span> PhonePe
+          </a>
+          <a class="upi-app-btn" id="upi-btn-paytm" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; background:#fff; border:1.5px solid var(--line); border-radius:10px; font-weight:700; font-size:12px; color:var(--ink);">
+            <span style="font-size:16px;">🔵</span> Paytm
+          </a>
+          <a class="upi-app-btn" id="upi-btn-bhim" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; background:#fff; border:1.5px solid var(--line); border-radius:10px; font-weight:700; font-size:12px; color:var(--ink);">
+            <span style="font-size:16px;">⚡</span> Any UPI App
+          </a>
+        </div>
+      </div>
+
+      <!-- Payment Reference / Verification -->
+      <div style="background:var(--card-subtle); border-radius:12px; padding:12px 14px; margin-bottom:16px;">
+        <label style="font-size:11.5px; font-weight:800; color:var(--ink-soft); display:block; margin-bottom:6px;">
+          12-Digit UPI Ref / UTR Number <span style="font-weight:400; color:var(--ink-muted);">(from your payment app)</span>
+        </label>
+        <input type="text" id="upi-utr-input" placeholder="e.g. 4239XXXXXXXX (optional)" maxlength="18" class="promo-input" style="width:100%; padding:9px 12px; font-family:monospace;">
+      </div>
+
+      <!-- Confirm / Cancel buttons -->
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-primary btn-full" onclick="confirmUpiPayment()">
+          ✅ Payment Completed — Confirm Booking
+        </button>
+        <button class="btn btn-subtle btn-full btn-sm" onclick="closeUpiPaymentModal()">
+          Cancel / Back to Tray
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: OWNER PAYMENT CONFIGURATION ================= -->
+  <div class="modal-overlay" id="owner-payment-modal">
+    <div class="modal-card" style="max-width:440px; max-height:90vh; overflow-y:auto; padding:24px;">
+      <button class="modal-close" onclick="closeOwnerPaymentConfigModal()">✕</button>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <div style="width:40px; height:40px; border-radius:10px; background:var(--chili-soft); color:var(--chili); display:flex; align-items:center; justify-content:center; font-size:20px;">⚙️</div>
+        <div>
+          <h3 style="font-size:18px; font-weight:800;">Receiving Account Settings</h3>
+          <p style="font-size:12px; color:var(--ink-soft);">Configure who receives food booking payments</p>
+        </div>
+      </div>
+
+      <div style="background:var(--turmeric-soft); border:1px solid rgba(244,162,40,0.3); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--turmeric-deep); margin-bottom:16px;">
+        💡 <b>Direct Transfer Guarantee:</b> All customer food booking payments and wallet top-ups are transferred directly into this UPI ID. You can update this anytime.
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label style="font-size:12px; font-weight:700;">Your Receiving UPI ID (VPA) *</label>
+        <input type="text" id="config-upi-id" placeholder="e.g. rohitkumar@okhdfcbank or 9876543210@paytm" style="width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:13px; font-weight:600;">
+        <span style="font-size:11px; color:var(--ink-muted); margin-top:3px; display:block;">Found in Google Pay, PhonePe, or Paytm under Profile &gt; UPI ID</span>
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label style="font-size:12px; font-weight:700;">Account Holder / Payee Name *</label>
+        <input type="text" id="config-payee-name" placeholder="e.g. Rohit Kumar" style="width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:13px; font-weight:600;">
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label style="font-size:12px; font-weight:700;">Phone / UPI Mobile Number</label>
+        <input type="tel" id="config-phone" placeholder="e.g. 9876543210" style="width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:13px; font-weight:600;">
+      </div>
+
+      <div class="field" style="margin-bottom:16px;">
+        <label style="font-size:12px; font-weight:700;">Optional Bank Account &amp; IFSC Details</label>
+        <input type="text" id="config-bank-details" placeholder="e.g. HDFC Bank, A/C: 50100..., IFSC: HDFC0001234" style="width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:13px;">
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary btn-full" onclick="saveOwnerPaymentConfig()">💾 Save Account Details</button>
+        <button class="btn btn-subtle btn-sm" onclick="closeOwnerPaymentConfigModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: TABLE SELECTION ================= -->
+  <div class="modal-overlay" id="table-select-modal">
+    <div class="modal-card" style="max-width:540px; max-height:92vh; overflow-y:auto; padding:22px;">
+      <button class="modal-close" onclick="closeTableSelectModal()">✕</button>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:var(--turmeric); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px;">🪑</div>
+        <div>
+          <h3 style="font-size:18px; font-weight:800; margin:0;">Select Sitting Table</h3>
+          <p style="font-size:12px; color:var(--ink-soft); margin:0;">Pick an available table for on-time table dining service</p>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; gap:6px;" id="modal-table-filter-pills">
+          <button class="pill active" style="cursor:pointer;" onclick="filterModalTables('all', this)">All Tables</button>
+          <button class="pill" style="cursor:pointer;" onclick="filterModalTables(2, this)">2-Seat</button>
+          <button class="pill" style="cursor:pointer;" onclick="filterModalTables(4, this)">4-Seat</button>
+          <button class="pill" style="cursor:pointer;" onclick="filterModalTables(6, this)">6-Seat</button>
+        </div>
+        <button class="btn btn-turmeric btn-sm" onclick="autoAllotTableForCart()">⚡ Auto-Allot</button>
+      </div>
+
+      <div id="modal-table-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; max-height:360px; overflow-y:auto; padding:4px;"></div>
+
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="font-size:12.5px; color:var(--ink-soft);" id="modal-table-selected-label">Selected: <b>Table T-02</b></div>
+        <button class="btn btn-primary btn-sm" onclick="confirmModalTableSelection()">Confirm Table Allotment ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: PICKUP PASS / RECEIPT ================= -->
+  <div class="modal-overlay" id="receipt-modal">
+    <div class="modal-card" style="max-width:380px;">
+      <button class="modal-close" onclick="closeReceiptModal()">✕</button>
+      <h3 style="font-size:18px; font-weight:800; margin-bottom:12px; text-align:center;">LPU Food Express Slip</h3>
+      <div class="receipt-slip" id="receipt-slip-content"></div>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn btn-primary btn-full btn-sm" onclick="window.print()">🖨️ Print Slip</button>
+        <button class="btn btn-subtle btn-full btn-sm" onclick="closeReceiptModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <h4 style="display:flex; align-items:center; gap:8px;">
+            <span style="color:var(--turmeric);">✦</span> LPU FOOD EXPRESS
+          </h4>
+          <p>Smart campus dining solution designed to solve peak 12:30–2:00 PM canteen congestion across Uni-Mall and
+            academic blocks.</p>
+          <p style="font-size:12px; color:#8C8375;">Academic BTech CSE (1st Year) Mini Project Prototype.</p>
+        </div>
+        <div>
+          <h4>Campus Hotspots</h4>
+          <ul>
+            <li><a href="javascript:void(0)" onclick="selectMapSpot('rasoi'); showPage('page-crowd');">Block 34 Canteen
+                (Punjabi Rasoi)</a></li>
+            <li><a href="javascript:void(0)" onclick="selectMapSpot('south'); showPage('page-crowd');">Block 32 Canteen
+                (South Express)</a></li>
+            <li><a href="javascript:void(0)" onclick="selectMapSpot('quick'); showPage('page-crowd');">Uni-Mall Food
+                Court (Crave Hub)</a></li>
+            <li><a href="javascript:void(0)" onclick="selectMapSpot('chai'); showPage('page-crowd');">Block 38 Central
+                Library Kiosk</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Emergency Help</h4>
+          <p>Helpline: +91 1824 517 000 (Ext. 5100)</p>
+          <p>Email: lpufood.support@lpu.in</p>
+          <p>Office: Block 4, Student Welfare Division</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 LPU Food — Campus Innovation Mini Project. All rights reserved.</span>
+        <span>Front-End Campus Food-Tech Prototype</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // =====================================================================
+    // AUDIO SYNTHESIS (Zero external dependencies)
+    // =====================================================================
+    let audioEnabled = true;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'tap') {
+          osc.frequency.setValueAtTime(460, now);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'add') {
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'success') {
+          // Ascending chime (C5 -> E5 -> G5)
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.09);
+          osc.frequency.setValueAtTime(783.99, now + 0.18);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'ready') {
+          // Two-tone bell alert for food pickup ready
+          osc.frequency.setValueAtTime(783.99, now); // G5
+          osc.frequency.setValueAtTime(1046.50, now + 0.16); // C6
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+          osc.start(now);
+          osc.stop(now + 0.6);
+        }
+      } catch (e) {
+        // Audio contexts may be blocked by browser until user gesture
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById('sound-btn').textContent = audioEnabled ? '🔊' : '🔇';
+      showToast(audioEnabled ? 'Sound feedback ON' : 'Sound muted');
+    }
+
+    // =====================================================================
+    // DATA: EXPANDED VENDORS & RICH FOOD ITEMS
+    // =====================================================================
+    const VENDORS = [
+      {
+        id: 'rasoi',
+        name: 'Punjabi Rasoi',
+        location: 'Block 34 Canteen',
+        rating: '4.8 ★ (1.2k)',
+        cover: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=500&auto=format&fit=crop&q=80',
+        crowd: 'green',
+        eta: '6–10 min',
+        desc: 'Authentic North Indian thalis, stuffed parathas, and fresh tandoor bowls.',
+        counterNo: 'Counter #1 & 2',
+        items: [
+          {
+            name: 'Rajma Chawal Deluxe Thali',
+            desc: 'Slow cooked Jammu rajma, steamed basmati, 2 butter rotis, curd & salad.',
+            price: 110,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Paneer Butter Masala Combo',
+            desc: 'Rich cashew tomato gravy paneer with 2 hot butter tandoori naans.',
+            price: 135,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Desi Chicken Curry Meal',
+            desc: 'Homestyle chicken curry with fragrant jeera rice and spiced onions.',
+            price: 155,
+            veg: false,
+            bestseller: false,
+            img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Amritsari Kulcha with Chole',
+            desc: 'Crisp potato-onion stuffed kulcha served with tangy pindi chole.',
+            price: 85,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Patiala Masala Chaas (350ml)',
+            desc: 'Chilled spiced buttermilk with roasted cumin, mint and black salt.',
+            price: 30,
+            veg: true,
+            bestseller: false,
+            img: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=300&auto=format&fit=crop&q=80'
+          }
+        ]
+      },
+      {
+        id: 'south',
+        name: 'South Express',
+        location: 'Block 32 Canteen',
+        rating: '4.7 ★ (980)',
+        cover: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=500&auto=format&fit=crop&q=80',
+        crowd: 'yellow',
+        eta: '10–14 min',
+        desc: 'Golden crispy dosas, fluffy idlis, and traditional filter kaapi.',
+        counterNo: 'Express Counter #4',
+        items: [
+          {
+            name: 'Mysore Masala Dosa',
+            desc: 'Red chutney smeared dosa with spiced potato mash, served with sambar & 2 chutneys.',
+            price: 75,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Steamed Idli Sambar (4 pcs)',
+            desc: 'Ultra-soft steamed fermented cakes submerged in piping hot vegetable sambar.',
+            price: 55,
+            veg: true,
+            bestseller: false,
+            img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Cheese Onion Uttapam',
+            desc: 'Thick fermented pancake topped with chopped red onions, green chillies & cheese.',
+            price: 90,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Traditional Filter Kaapi',
+            desc: 'Brewed with chicory blend and frothy fresh buffalo milk in brass davarah.',
+            price: 25,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80'
+          }
+        ]
+      },
+      {
+        id: 'quick',
+        name: 'Uni-Mall Crave Hub',
+        location: 'Uni-Mall Ground Floor',
+        rating: '4.6 ★ (2.1k)',
+        cover: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&auto=format&fit=crop&q=80',
+        crowd: 'red',
+        eta: '18–24 min',
+        desc: 'Campus favorite for burgers, grilled wraps, loaded fries and thick milkshakes.',
+        counterNo: 'Counter #6 (Uni-Mall)',
+        items: [
+          {
+            name: 'Crispy Paneer Supreme Burger',
+            desc: 'Crumb-fried cottage cheese patty with spicy tandoori mayo & iceberg lettuce.',
+            price: 95,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Grilled Chicken Kathi Roll',
+            desc: 'Charred spiced chicken tikka strips rolled in whole-wheat paratha with mint relish.',
+            price: 125,
+            veg: false,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Peri-Peri Crinkle Fries',
+            desc: 'Crispy hot potato fries tossed generously in African bird-eye chilli blend.',
+            price: 65,
+            veg: true,
+            bestseller: false,
+            img: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Blended Iced Cold Coffee (350ml)',
+            desc: 'Double shot espresso shaken with chocolate syrup and vanilla soft cream.',
+            price: 65,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=300&auto=format&fit=crop&q=80'
+          }
+        ]
+      },
+      {
+        id: 'chai',
+        name: 'Chai & Maggi Kiosk',
+        location: 'Block 38 Central Library',
+        rating: '4.9 ★ (840)',
+        cover: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=500&auto=format&fit=crop&q=80',
+        crowd: 'green',
+        eta: '5–8 min',
+        desc: 'Exam study fuel: Adrak elachi chai, double butter maggi, and grilled cheese toasts.',
+        counterNo: 'Library Window #1',
+        items: [
+          {
+            name: 'Double Masala Cheese Maggi',
+            desc: 'Classic 2-minute noodles tossed with butter, extra tastemaker and melted cheddar.',
+            price: 60,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Kulhad Adrak-Elaichi Chai',
+            desc: 'Piping hot spiced tea brewed with fresh crushed ginger and cardamom.',
+            price: 20,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Bombay Masala Grilled Sandwich',
+            desc: 'Layered spiced potatoes, beetroots, cucumber, cheese and spicy green chutney.',
+            price: 70,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&auto=format&fit=crop&q=80'
+          }
+        ]
+      },
+      {
+        id: 'juice',
+        name: 'Green Bowl & Shakes',
+        location: 'Girls Hostel & Sports Hub',
+        rating: '4.7 ★ (610)',
+        cover: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=500&auto=format&fit=crop&q=80',
+        crowd: 'yellow',
+        eta: '8–12 min',
+        desc: 'Healthy fruit bowls, cold-pressed juices, and protein fitness smoothies.',
+        counterNo: 'Sports Arena Kiosk',
+        items: [
+          {
+            name: 'Fresh Mosambi Citrus Juice',
+            desc: '100% freshly pressed sweet lime with a pinch of pink salt.',
+            price: 45,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Peanut Butter Whey Shake',
+            desc: '25g protein shake with oats, banana, peanut butter and skimmed milk.',
+            price: 99,
+            veg: true,
+            bestseller: true,
+            img: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=300&auto=format&fit=crop&q=80'
+          },
+          {
+            name: 'Seasonal Fruit Salad Bowl',
+            desc: 'Papaya, pomegranate, pineapple, apples with mint honey dressing.',
+            price: 70,
+            veg: true,
+            bestseller: false,
+            img: 'https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=300&auto=format&fit=crop&q=80'
+          }
+        ]
+      }
+    ];
+
+    const CROWD = [
+      { id: 'quick', loc: 'Uni-Mall Food Court', level: 'red', pct: 86, wait: '~22 min', desc: 'Ground & 1st floor counters under high lunchtime demand.' },
+      { id: 'south', loc: 'Block 32 Canteen', level: 'yellow', pct: 52, wait: '~11 min', desc: 'Steady queue for South Indian tiffin & dosas.' },
+      { id: 'rasoi', loc: 'Block 34 (Punjabi Rasoi)', level: 'green', pct: 24, wait: '~3 min', desc: 'Express window running at rapid turnaround.' },
+      { id: 'chai', loc: 'Block 38 Central Library', level: 'green', pct: 32, wait: '~5 min', desc: 'Normal flow for snacks, teas & hot maggi.' }
+    ];
+
+    const LEVEL_STYLE = {
+      green: { label: 'Low Queue', dot: 'dot-green', bg: 'var(--mint-soft)', fg: 'var(--mint)', bar: 'var(--mint)' },
+      yellow: { label: 'Moderate', dot: 'dot-yellow', bg: 'var(--amber-soft)', fg: 'var(--turmeric-deep)', bar: 'var(--turmeric)' },
+      red: { label: 'High Congestion', dot: 'dot-red', bg: 'var(--red-soft)', fg: 'var(--chili)', bar: 'var(--chili)' }
+    };
+
+    // =====================================================================
+    // CAMPUS SITTING AREAS & TABLES DATA
+    // =====================================================================
+    const CAMPUS_TABLES = [
+      // Uni-Mall Food Court (zoneId: 'quick')
+      { id: 'T-01', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 2, type: 'Couples / Duo Pod', feature: '❄️ AC Hall · Window View', status: 'available' },
+      { id: 'T-02', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 4, type: 'Standard Quad Table', feature: '⚡ Power Outlet · Central Hall', status: 'available' },
+      { id: 'T-03', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 4, type: 'Plush Dining Booth', feature: '❄️ AC Hall · Cushioned', status: 'occupied', etaFree: '~6 min' },
+      { id: 'T-04', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 6, type: 'Group Study & Dine Table', feature: '⚡ Multi-plug · Mezzanine Floor', status: 'available' },
+      { id: 'T-05', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 2, type: 'Express Quick Table', feature: '📶 High Speed WiFi · Quick Bites', status: 'available' },
+      { id: 'T-06', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 4, type: 'Standard Quad Table', feature: '❄️ AC Central · Near Escalator', status: 'available' },
+
+      // Block 34 Punjabi Rasoi (zoneId: 'rasoi')
+      { id: 'B-01', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 4, type: 'Open Garden Terrace Table', feature: '🌿 Fresh Air Lawn View', status: 'available' },
+      { id: 'B-02', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 4, type: 'Main Dining Hall Table', feature: '⚡ Fast Table Service · Fan Cooled', status: 'available' },
+      { id: 'B-03', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 6, type: 'CSE Squad Big Table', feature: '👥 Group Seating · Whiteboard View', status: 'occupied', etaFree: '~10 min' },
+      { id: 'B-04', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 2, type: 'Corner Duo Desk', feature: '🌿 Quiet Corner · Tree Shade', status: 'available' },
+      { id: 'B-05', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 4, type: 'Garden Terrace Table', feature: '🌿 Lawn View · Sanitized', status: 'available' },
+
+      // Block 32 South Canteen (zoneId: 'south')
+      { id: 'S-01', zoneId: 'south', zone: 'Block 32 Canteen', seats: 4, type: 'Courtyard Palm Seating', feature: '☀️ Sun Shade Canopy · Open Air', status: 'available' },
+      { id: 'S-02', zoneId: 'south', zone: 'Block 32 Canteen', seats: 2, type: 'Bistro 2-Seater', feature: '⚡ Quick Tiffin Bench', status: 'available' },
+      { id: 'S-03', zoneId: 'south', zone: 'Block 32 Canteen', seats: 6, type: 'South Verandah Long Table', feature: '👥 Large Batch Seating', status: 'available' },
+      { id: 'S-04', zoneId: 'south', zone: 'Block 32 Canteen', seats: 4, type: 'Courtyard Quad Table', feature: '🌿 Courtyard View · Sanitized', status: 'occupied', etaFree: '~4 min' },
+
+      // Block 38 Central Library Lounge (zoneId: 'chai')
+      { id: 'L-01', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 2, type: 'Quiet Study & Sip Desk', feature: '⚡ Dual Power Sockets · Silent Zone', status: 'available' },
+      { id: 'L-02', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 2, type: 'Discussion Corner', feature: '☕ Beside Coffee Bar', status: 'available' },
+      { id: 'L-03', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 4, type: 'Study Pod Table', feature: '⚡ Power Outlets · Lamp Lit', status: 'available' },
+      { id: 'L-04', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 4, type: 'Lounge Sofa Table', feature: '🛋️ Plush Seating · Air Conditioned', status: 'occupied', etaFree: '~8 min' },
+
+      // Sports Hub & Hostel (zoneId: 'juice')
+      { id: 'G-01', zoneId: 'juice', zone: 'Sports Arena Hub', seats: 2, type: 'Athletic High Bar Table', feature: '🏋️ High Stool · Arena View', status: 'available' },
+      { id: 'G-02', zoneId: 'juice', zone: 'Sports Arena Hub', seats: 4, type: 'Fitness Lounge Table', feature: '🌿 Outdoor Shaded Pergola', status: 'available' },
+      { id: 'G-03', zoneId: 'juice', zone: 'Sports Arena Hub', seats: 4, type: 'Girls Hostel Lawn Table', feature: '🌸 Garden Seating · Sanitized', status: 'occupied', etaFree: '~5 min' }
+    ];
+
+    let tableFilterZone = 'all';
+    let tableFilterSeat = 'all';
+    let modalSelectedTableId = null;
+    let modalSeatFilter = 'all';
+
+    // =====================================================================
+    // APP STATE
+    // =====================================================================
+    const appState = {
+      loggedIn: true,
+      name: 'Rohit Kumar',
+      phone: '9876543210',
+      block: 'Block 34 (CSE Block)',
+      course: 'BTech CSE, 1st Year',
+      wallet: 460.00,
+      orderNo: 3422,
+      otp: null,
+      pendingPage: null,
+      appliedPromo: null,
+      activeFilter: 'all',
+      searchQuery: '',
+      sortOrder: 'default',
+      pickupSlotMode: 'sync', // 'sync' or 'asap'
+      diningMode: 'dinein',   // 'dinein' (eat on allotted table) or 'packed' (takeaway)
+      selectedTable: null     // Allotted sitting table object
+    };
+
+    const cart = {
+      vendorId: 'rasoi',
+      qty: { 'Rajma Chawal Deluxe Thali': 1 }
+    };
+
+    let selectedVendorId = VENDORS[0].id;
+    let lastOrder = null;
+    let orderSimulationTimer = null;
+
+    // =====================================================================
+    // RECEIVING ACCOUNT & PAYMENT CONFIGURATION (OWNER SETTINGS)
+    // =====================================================================
+    const DEFAULT_PAYMENT_CONFIG = {
+      upiId: 'rohitkumar.lpu@upi', // Rohit Kumar's receiving UPI ID (customizable via UI or directly here)
+      payeeName: 'Rohit Kumar',
+      phone: '9876543210',
+      bankDetails: 'HDFC Bank, IFSC: HDFC0001234'
+    };
+
+    let paymentConfig = { ...DEFAULT_PAYMENT_CONFIG };
+    let selectedPaymentMethod = 'upi'; // 'upi', 'wallet', or 'counter'
+    let pendingOrderContext = null;
+
+    // =====================================================================
+    // PAGE NAVIGATION
+    // =====================================================================
+    function showPage(id) {
+      playSound('tap');
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById(id);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-link').forEach(b => {
+        b.classList.toggle('active', b.dataset.page === id);
+      });
+      document.getElementById('nav-links').classList.remove('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (id === 'page-track') renderTrack();
+      if (id === 'page-crowd') selectMapSpot(selectedVendorId);
+      if (id === 'page-tables') renderTableBooking();
+    }
+
+    function requireLoginThen(pageId) {
+      if (appState.loggedIn) {
+        showPage(pageId);
+      } else {
+        appState.pendingPage = pageId;
+        openLogin();
+      }
+    }
+
+    // =====================================================================
+    // PROMO CODE SYSTEM
+    // =====================================================================
+    const PROMO_CODES = {
+      'LPUFIRST': { discountType: 'flat', val: 30, label: '₹30 Flat First-Order Discount' },
+      'EXAMFUEL': { discountType: 'percent', val: 15, max: 50, label: '15% Off Study Fuel' },
+      'CHAI20': { discountType: 'flat', val: 20, label: '₹20 Off Refreshment' }
+    };
+
+    function applyPromo() {
+      const code = (document.getElementById('promo-input').value || '').trim().toUpperCase();
+      if (!code) {
+        showToast('Enter a promo code');
+        return;
+      }
+      if (!PROMO_CODES[code]) {
+        showToast('Invalid promo code. Try LPUFIRST');
+        return;
+      }
+      appState.appliedPromo = { code, ...PROMO_CODES[code] };
+      playSound('success');
+      showToast(`Promo ${code} applied! 🎉`);
+      renderCartDrawer();
+    }
+
+    function removePromo() {
+      appState.appliedPromo = null;
+      document.getElementById('promo-input').value = '';
+      renderCartDrawer();
+      showToast('Promo code removed');
+    }
+
+    // =====================================================================
+    // RENDER: HOME VENDORS
+    // =====================================================================
+    function renderHomeVendors() {
+      document.getElementById('home-vendor-grid').innerHTML = VENDORS.slice(0, 3).map(v => {
+        const s = LEVEL_STYLE[v.crowd];
+        return `
+      <div class="card vendor-card" onclick="openVendorFromHome('${v.id}')">
+        <div class="vendor-img-wrap">
+          <img src="${v.cover}" alt="${v.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80'">
+          <div class="vendor-badge-top">
+            <span>${v.rating}</span>
+          </div>
+        </div>
+        <div class="vendor-card-body">
+          <div class="vendor-name">${v.name}</div>
+          <div class="vendor-meta">${v.location} · Ready in ${v.eta}</div>
+          <p style="font-size:12px; color:var(--ink-soft); line-height:1.4; margin-bottom:12px;">${v.desc}</p>
+          <div class="vendor-footer">
+            <span class="pill" style="background:${s.bg}; color:${s.fg};"><span class="dot ${s.dot}"></span>${s.label}</span>
+            <span class="btn btn-subtle btn-sm" style="font-weight:700;">View Menu →</span>
+          </div>
+        </div>
+      </div>
+    `;
+      }).join('');
+    }
+
+    function openVendorFromHome(id) {
+      selectedVendorId = id;
+      showPage('page-menu');
+      renderVendorList();
+      renderMenuPanel();
+    }
+
+    // =====================================================================
+    // RENDER: CAMPUS CROWD & MAP
+    // =====================================================================
+    function renderCrowd() {
+      document.getElementById('crowd-grid').innerHTML = CROWD.map(c => {
+        const s = LEVEL_STYLE[c.level];
+        return `
+      <div class="card crowd-card" style="padding:18px; cursor:pointer;" onclick="selectMapSpot('${c.id}')">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="font-weight:800; font-size:14.5px;">${c.loc}</div>
+          <span class="dot ${s.dot}"></span>
+        </div>
+        <div style="font-size:11.5px; color:var(--ink-soft); margin:4px 0 10px;">${c.desc}</div>
+        <div class="bar-track" style="height:7px; background:var(--steel-2); border-radius:5px; overflow:hidden;">
+          <div class="bar-fill" style="height:100%; width:${c.pct}%; background:${s.bar};"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <span class="pill" style="background:${s.bg}; color:${s.fg};">${s.label}</span>
+          <span style="font-size:12px; font-weight:800; color:var(--ink);">${c.wait}</span>
+        </div>
+      </div>
+    `;
+      }).join('');
+    }
+
+    function selectMapSpot(vendorId) {
+      const v = VENDORS.find(x => x.id === vendorId) || VENDORS[0];
+      const c = CROWD.find(x => x.id === vendorId) || CROWD[0];
+      const s = LEVEL_STYLE[v.crowd];
+
+      document.getElementById('map-detail-title').textContent = `${v.name} (${v.location})`;
+      document.getElementById('map-detail-desc').textContent = `${c.desc} Pickup at ${v.counterNo}. Turnaround ETA: ${v.eta}.`;
+      const pill = document.getElementById('map-detail-pill');
+      pill.textContent = s.label;
+      pill.style.background = s.bg;
+      pill.style.color = s.fg;
+
+      const btn = document.getElementById('map-order-btn');
+      btn.onclick = () => openVendorFromMap(v.id);
+
+      // Update selection highlight on diagram nodes
+      document.querySelectorAll('.map-node').forEach(n => n.classList.remove('selected'));
+      if (vendorId === 'quick') document.querySelector('.map-node-mall')?.classList.add('selected');
+      if (vendorId === 'rasoi') document.querySelector('.map-node-b34')?.classList.add('selected');
+      if (vendorId === 'south') document.querySelector('.map-node-b32')?.classList.add('selected');
+      if (vendorId === 'chai') document.querySelector('.map-node-b38')?.classList.add('selected');
+    }
+
+    function openVendorFromMap(vendorId) {
+      selectedVendorId = vendorId;
+      showPage('page-menu');
+      renderVendorList();
+      renderMenuPanel();
+    }
+
+    function simulateCrowdRefresh() {
+      playSound('tap');
+      CROWD.forEach(c => {
+        const delta = Math.floor((Math.random() - 0.5) * 8);
+        c.pct = Math.min(95, Math.max(15, c.pct + delta));
+      });
+      renderCrowd();
+      showToast('Sensor feeds synced with counter head-counts');
+    }
+
+    // =====================================================================
+    // RENDER: MENU & FILTER ENGINE
+    // =====================================================================
+    function renderVendorList() {
+      document.getElementById('vendor-list').innerHTML = VENDORS.map(v => {
+        const s = LEVEL_STYLE[v.crowd];
+        const active = v.id === selectedVendorId ? 'active' : '';
+        return `
+      <div class="card vendor-list-item ${active}" onclick="selectVendor('${v.id}')">
+        <img class="vendor-list-thumb" src="${v.cover}" alt="${v.name}" onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=100&auto=format&fit=crop&q=80'">
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:800; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.name}</div>
+          <div style="font-size:11px; color:var(--ink-soft);">${v.location}</div>
+        </div>
+        <span class="dot ${s.dot}" title="${s.label}"></span>
+      </div>
+    `;
+      }).join('');
+    }
+
+    function selectVendor(id) {
+      if (id === selectedVendorId) { renderMenuPanel(); return; }
+      const hasItems = Object.values(cart.qty).some(q => q > 0);
+      if (hasItems && cart.vendorId && cart.vendorId !== id) {
+        const ok = confirm('Switching outlets will clear your current tray. Continue?');
+        if (!ok) return;
+        cart.qty = {};
+        cart.vendorId = null;
+      }
+      selectedVendorId = id;
+      playSound('tap');
+      renderVendorList();
+      renderMenuPanel();
+      updateCartUI();
+    }
+
+    function setFilter(filterType, btn) {
+      appState.activeFilter = filterType;
+      playSound('tap');
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      renderMenuPanel();
+    }
+
+    function onSearchInput(val) {
+      appState.searchQuery = val.trim().toLowerCase();
+      renderMenuPanel();
+    }
+
+    function onSortChange(val) {
+      appState.sortOrder = val;
+      renderMenuPanel();
+    }
+
+    function renderMenuPanel() {
+      const v = VENDORS.find(x => x.id === selectedVendorId) || VENDORS[0];
+      const s = LEVEL_STYLE[v.crowd];
+
+      // Filter items
+      let filtered = v.items.filter(it => {
+        if (appState.activeFilter === 'veg' && !it.veg) return false;
+        if (appState.activeFilter === 'nonveg' && it.veg) return false;
+        if (appState.activeFilter === 'budget' && it.price > 100) return false;
+        if (appState.activeFilter === 'bestseller' && !it.bestseller) return false;
+        if (appState.searchQuery) {
+          const matchName = it.name.toLowerCase().includes(appState.searchQuery);
+          const matchDesc = it.desc.toLowerCase().includes(appState.searchQuery);
+          if (!matchName && !matchDesc) return false;
+        }
+        return true;
+      });
+
+      // Sort items
+      if (appState.sortOrder === 'price-low') {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (appState.sortOrder === 'price-high') {
+        filtered.sort((a, b) => b.price - a.price);
+      }
+
+      const itemsHtml = filtered.length === 0
+        ? `<div style="text-align:center; padding:38px 20px; color:var(--ink-soft);">
+        <div style="font-size:32px; margin-bottom:8px;">🥗</div>
+        <div style="font-weight:700;">No items match your filter</div>
+        <div style="font-size:12px; margin-top:4px;">Try searching a different dish or reset filter.</div>
+      </div>`
+        : filtered.map(it => {
+          const qty = (cart.vendorId === v.id) ? (cart.qty[it.name] || 0) : 0;
+          return `
+          <div class="dish-card">
+            <div class="dish-info-col">
+              <div class="dish-title-row">
+                <div class="veg-mark ${it.veg ? '' : 'nonveg'}"></div>
+                <span style="font-weight:800; font-size:14.5px;">${it.name}</span>
+                ${it.bestseller ? '<span class="dish-badge">★ Bestseller</span>' : ''}
+              </div>
+              <div class="dish-desc">${it.desc}</div>
+              <div class="dish-price">₹${it.price}</div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+              <div class="dish-img-col">
+                <img src="${it.img}" alt="${it.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80'">
+              </div>
+              <div class="stepper">
+                <button onclick="changeQty('${v.id}', '${it.name.replace(/'/g, "\\'")}', -1)">−</button>
+                <span class="qty">${qty}</span>
+                <button onclick="changeQty('${v.id}', '${it.name.replace(/'/g, "\\'")}', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        `;
+        }).join('');
+
+      document.getElementById('menu-panel').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3 style="font-size:22px; font-weight:800;">${v.name}</h3>
+        <div style="font-size:12.5px; color:var(--ink-soft); margin-top:3px;">${v.location} · ${v.counterNo} · Ready in ${v.eta}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="pill" style="background:${s.bg}; color:${s.fg};"><span class="dot ${s.dot}"></span>${s.label}</span>
+      </div>
+    </div>
+    <div class="dish-grid">${itemsHtml}</div>
+  `;
+    }
+
+    function changeQty(vendorId, itemName, delta) {
+      if (cart.vendorId && cart.vendorId !== vendorId) {
+        const ok = confirm('Switching outlets will clear your current tray. Continue?');
+        if (!ok) return;
+        cart.qty = {};
+      }
+      cart.vendorId = vendorId;
+      const current = cart.qty[itemName] || 0;
+      let next = current + delta;
+      if (next < 0) next = 0;
+      cart.qty[itemName] = next;
+
+      if (delta > 0) playSound('add');
+      else playSound('tap');
+
+      renderMenuPanel();
+      updateCartUI();
+    }
+
+    function cartTotals() {
+      if (!cart.vendorId) return { count: 0, subtotal: 0, discount: 0, total: 0, vendor: null };
+      const v = VENDORS.find(x => x.id === cart.vendorId);
+      let count = 0, subtotal = 0;
+      if (v) {
+        v.items.forEach(it => {
+          const q = cart.qty[it.name] || 0;
+          count += q;
+          subtotal += q * it.price;
+        });
+      }
+      let discount = 0;
+      if (appState.appliedPromo && subtotal > 0) {
+        if (appState.appliedPromo.discountType === 'flat') {
+          discount = Math.min(subtotal, appState.appliedPromo.val);
+        } else if (appState.appliedPromo.discountType === 'percent') {
+          discount = Math.min(appState.appliedPromo.max || 50, Math.round(subtotal * (appState.appliedPromo.val / 100)));
+        }
+      }
+      const total = Math.max(0, subtotal - discount);
+      return { count, subtotal, discount, total, vendor: v };
+    }
+
+    function updateCartUI() {
+      const { count, total } = cartTotals();
+      const fab = document.getElementById('cart-fab');
+      document.getElementById('cart-fab-text').textContent = count + (count === 1 ? ' item · ₹' : ' items · ₹') + total;
+      fab.classList.toggle('show', count > 0);
+    }
+
+    function renderCartDrawer() {
+      const { count, subtotal, discount, total, vendor } = cartTotals();
+      const wrap = document.getElementById('cart-items');
+      document.getElementById('cart-vendor-name').textContent = vendor
+        ? ('Ordering from ' + vendor.name + ' · ' + vendor.location)
+        : '';
+
+      if (count === 0) {
+        wrap.innerHTML = '<div style="font-size:13px; color:var(--ink-soft); text-align:center; padding:30px 0;">Your food tray is empty. Add items from the menu.</div>';
+      } else {
+        wrap.innerHTML = vendor.items.filter(it => (cart.qty[it.name] || 0) > 0).map(it => {
+          const q = cart.qty[it.name];
+          return `
+        <div class="cart-line">
+          <div>
+            <div style="font-weight:700;">${it.name}</div>
+            <div style="font-size:11.5px; color:var(--ink-soft);">₹${it.price} × ${q}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-weight:800;">₹${q * it.price}</span>
+            <div class="stepper" style="min-width:68px; padding:2px 8px;">
+              <button onclick="changeQty('${vendor.id}', '${it.name.replace(/'/g, "\\'")}', -1); renderCartDrawer();">−</button>
+              <span class="qty">${q}</span>
+              <button onclick="changeQty('${vendor.id}', '${it.name.replace(/'/g, "\\'")}', 1); renderCartDrawer();">+</button>
+            </div>
+          </div>
+        </div>
+      `;
+        }).join('');
+      }
+
+      document.getElementById('bill-subtotal').textContent = '₹' + subtotal;
+      const discRow = document.getElementById('bill-discount-row');
+      if (discount > 0) {
+        discRow.style.display = 'flex';
+        document.getElementById('bill-discount').textContent = '-₹' + discount;
+        document.getElementById('promo-success-pill').classList.add('show');
+        document.getElementById('promo-success-text').textContent = `${appState.appliedPromo.code}: ₹${discount} SAVED`;
+      } else {
+        discRow.style.display = 'none';
+        document.getElementById('promo-success-pill').classList.remove('show');
+      }
+
+      document.getElementById('cart-total').textContent = '₹' + total;
+      const orderBtn = document.getElementById('place-order-btn');
+      if (orderBtn) {
+        if (selectedPaymentMethod === 'upi') {
+          orderBtn.innerHTML = `Pay via UPI &amp; Confirm · <span id="place-order-total">₹${total}</span>`;
+        } else if (selectedPaymentMethod === 'wallet') {
+          orderBtn.innerHTML = `Pay with Campus Wallet · <span id="place-order-total">₹${total}</span>`;
+        } else {
+          orderBtn.innerHTML = `Confirm Pre-Order (Pay on Pickup) · <span id="place-order-total">₹${total}</span>`;
+        }
+      }
+      const wBadge = document.getElementById('cart-wallet-badge');
+      if (wBadge) {
+        wBadge.textContent = 'Bal: ₹' + Math.floor(appState.wallet);
+      }
+      updateCartTableUI();
+      if (!appState.selectedTable && appState.diningMode === 'dinein') {
+        autoAllotTableForCart(false);
+      }
+    }
+
+    function openCart() {
+      playSound('tap');
+      renderCartDrawer();
+      document.getElementById('cart-drawer').classList.add('show');
+      document.getElementById('drawer-overlay').classList.add('show');
+    }
+    function closeCart() {
+      document.getElementById('cart-drawer').classList.remove('show');
+      document.getElementById('drawer-overlay').classList.remove('show');
+    }
+
+    function selectSlot(el, mode) {
+      playSound('tap');
+      appState.pickupSlotMode = mode;
+      document.querySelectorAll('.slot-option').forEach(s => {
+        s.style.borderColor = 'var(--line)';
+        s.style.background = '#fff';
+        s.querySelector('span').textContent = '○';
+        s.querySelector('span').style.color = 'var(--ink-muted)';
+      });
+      el.style.borderColor = 'var(--chili)';
+      el.style.background = 'var(--chili-soft)';
+      el.querySelector('span').textContent = '✓';
+      el.querySelector('span').style.color = 'var(--chili)';
+    }
+
+    // =====================================================================
+    // SITTING AREA & TABLE ALLOTMENT FUNCTIONS
+    // =====================================================================
+    function selectDiningMode(mode) {
+      playSound('tap');
+      appState.diningMode = mode;
+
+      const optDinein = document.getElementById('dining-opt-dinein');
+      const optPacked = document.getElementById('dining-opt-packed');
+      const checkDinein = document.getElementById('dining-check-dinein');
+      const checkPacked = document.getElementById('dining-check-packed');
+      const boxTable = document.getElementById('cart-table-box');
+      const boxPacked = document.getElementById('cart-packed-box');
+
+      if (mode === 'dinein') {
+        if (optDinein) {
+          optDinein.style.borderColor = 'var(--chili)';
+          optDinein.style.background = 'var(--chili-soft)';
+        }
+        if (optPacked) {
+          optPacked.style.borderColor = 'var(--line)';
+          optPacked.style.background = '#fff';
+        }
+        if (checkDinein) {
+          checkDinein.textContent = '✓ Selected';
+          checkDinein.style.color = 'var(--chili)';
+        }
+        if (checkPacked) {
+          checkPacked.textContent = '○ Select';
+          checkPacked.style.color = 'var(--ink-muted)';
+        }
+        if (boxTable) boxTable.style.display = 'flex';
+        if (boxPacked) boxPacked.style.display = 'none';
+
+        if (!appState.selectedTable) {
+          autoAllotTableForCart(false);
+        }
+      } else {
+        if (optDinein) {
+          optDinein.style.borderColor = 'var(--line)';
+          optDinein.style.background = '#fff';
+        }
+        if (optPacked) {
+          optPacked.style.borderColor = 'var(--chili)';
+          optPacked.style.background = 'var(--chili-soft)';
+        }
+        if (checkDinein) {
+          checkDinein.textContent = '○ Select';
+          checkDinein.style.color = 'var(--ink-muted)';
+        }
+        if (checkPacked) {
+          checkPacked.textContent = '✓ Selected';
+          checkPacked.style.color = 'var(--chili)';
+        }
+        if (boxTable) boxTable.style.display = 'none';
+        if (boxPacked) boxPacked.style.display = 'flex';
+      }
+    }
+
+    function autoAllotTableForCart(showFeedback = true) {
+      const vendorId = cart.vendorId || selectedVendorId || 'rasoi';
+      let free = CAMPUS_TABLES.filter(t => t.zoneId === vendorId && t.status === 'available');
+      if (free.length === 0) {
+        free = CAMPUS_TABLES.filter(t => t.status === 'available');
+      }
+      if (free.length > 0) {
+        appState.selectedTable = free[0];
+        updateCartTableUI();
+        if (showFeedback) {
+          playSound('success');
+          showToast(`⚡ Allotted Table ${free[0].id} (${free[0].zone}) for your order!`);
+          closeTableSelectModal();
+        }
+      } else {
+        if (showFeedback) showToast('All tables currently occupied. Staff will seat you upon arrival.');
+      }
+    }
+
+    function updateCartTableUI() {
+      const textEl = document.getElementById('cart-allotted-table-text');
+      if (textEl && appState.selectedTable) {
+        textEl.textContent = `Table ${appState.selectedTable.id} · ${appState.selectedTable.zone} (${appState.selectedTable.seats} Seats)`;
+      }
+    }
+
+    function openTableSelectModal() {
+      playSound('tap');
+      modalSelectedTableId = appState.selectedTable ? appState.selectedTable.id : null;
+      renderModalTableGrid();
+      document.getElementById('table-select-modal').classList.add('show');
+    }
+
+    function closeTableSelectModal() {
+      document.getElementById('table-select-modal').classList.remove('show');
+    }
+
+    function filterModalTables(seats, btn) {
+      modalSeatFilter = seats;
+      if (btn) {
+        document.querySelectorAll('#modal-table-filter-pills .pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderModalTableGrid();
+    }
+
+    function renderModalTableGrid() {
+      const grid = document.getElementById('modal-table-grid');
+      if (!grid) return;
+      const targetZone = cart.vendorId || selectedVendorId;
+
+      let list = CAMPUS_TABLES;
+      if (modalSeatFilter !== 'all') {
+        const s = parseInt(modalSeatFilter, 10);
+        list = list.filter(t => t.seats === s);
+      }
+
+      grid.innerHTML = list.map(t => {
+        const isFree = t.status === 'available';
+        const isSelected = modalSelectedTableId === t.id;
+        const isSameZone = t.zoneId === targetZone;
+
+        return `
+          <div class="table-card ${isSelected ? 'selected' : ''} ${!isFree ? 'occupied' : ''}" 
+            onclick="${isFree ? `selectModalTable('${t.id}')` : `showToast('Table ${t.id} occupied (leaves in ~6 min)')`}"
+            style="cursor:${isFree ? 'pointer' : 'not-allowed'}; padding:12px; border-radius:10px; ${isSelected ? 'border-color:var(--chili); background:var(--chili-soft);' : ''}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:800; font-size:15px; font-family:'Outfit',sans-serif;">${t.id}</span>
+              <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; ${isFree ? 'background:var(--mint-soft); color:var(--mint);' : 'background:#FFEAE8; color:var(--chili);'}">
+                ${isFree ? '● Free' : ('● Busy ' + (t.etaFree || ''))}
+              </span>
+            </div>
+            <div style="font-size:11px; font-weight:700; color:var(--ink-soft); margin-top:4px;">👥 ${t.seats} Seats · ${t.type}</div>
+            <div style="font-size:10.5px; color:var(--ink-muted); margin-top:2px;">${t.zone}</div>
+            <div style="font-size:10px; color:${isSameZone ? 'var(--turmeric-deep)' : 'var(--ink-soft)'}; margin-top:4px;">${t.feature}</div>
+            ${isSelected ? '<div style="margin-top:6px; font-size:11px; font-weight:800; color:var(--chili);">✓ Selected</div>' : ''}
+          </div>
+        `;
+      }).join('');
+
+      const lbl = document.getElementById('modal-table-selected-label');
+      if (lbl) {
+        lbl.innerHTML = modalSelectedTableId
+          ? `Selected: <b>Table ${modalSelectedTableId}</b>`
+          : 'Please tap an available table';
+      }
+    }
+
+    function selectModalTable(tableId) {
+      playSound('tap');
+      modalSelectedTableId = tableId;
+      renderModalTableGrid();
+    }
+
+    function confirmModalTableSelection() {
+      if (!modalSelectedTableId) {
+        showToast('Please select a table first');
+        return;
+      }
+      const tbl = CAMPUS_TABLES.find(t => t.id === modalSelectedTableId);
+      if (tbl) {
+        appState.selectedTable = tbl;
+        appState.diningMode = 'dinein';
+        selectDiningMode('dinein');
+        updateCartTableUI();
+        playSound('success');
+        showToast(`Table ${tbl.id} confirmed for your sitting meal!`);
+      }
+      closeTableSelectModal();
+    }
+
+    function renderTableBooking() {
+      const grid = document.getElementById('table-display-grid');
+      if (!grid) return;
+
+      let filtered = CAMPUS_TABLES;
+      if (tableFilterZone !== 'all') {
+        filtered = filtered.filter(t => t.zoneId === tableFilterZone);
+      }
+      if (tableFilterSeat !== 'all') {
+        const s = parseInt(tableFilterSeat, 10);
+        filtered = filtered.filter(t => t.seats === s);
+      }
+
+      const total = CAMPUS_TABLES.length;
+      const freeCount = CAMPUS_TABLES.filter(t => t.status === 'available').length;
+      const busyCount = total - freeCount;
+
+      const statTot = document.getElementById('stat-total-tables');
+      const statFree = document.getElementById('stat-free-tables');
+      const statBusy = document.getElementById('stat-busy-tables');
+      const navBadge = document.getElementById('nav-table-free-badge');
+
+      if (statTot) statTot.textContent = total;
+      if (statFree) statFree.textContent = freeCount;
+      if (statBusy) statBusy.textContent = busyCount;
+      if (navBadge) navBadge.textContent = freeCount + ' Free';
+
+      grid.innerHTML = filtered.map(t => {
+        const isFree = t.status === 'available';
+        const isMyTable = appState.selectedTable && appState.selectedTable.id === t.id;
+
+        return `
+          <div class="table-card ${isMyTable ? 'selected' : ''} ${!isFree ? 'occupied' : ''}">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="table-number-badge">${t.id}</span>
+                  <span class="table-seat-chip">👥 ${t.seats} Seats</span>
+                </div>
+                <span style="font-size:11px; font-weight:800; padding:3px 8px; border-radius:999px; ${isFree ? 'background:var(--mint-soft); color:var(--mint);' : 'background:#FFEAE8; color:var(--chili);'}">
+                  ${isFree ? '🟢 Available' : ('🔴 Occupied · Free ' + (t.etaFree || 'in 8 min'))}
+                </span>
+              </div>
+
+              <div style="margin-top:10px;">
+                <div style="font-weight:700; font-size:14px; color:var(--ink);">${t.type}</div>
+                <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">📍 ${t.zone}</div>
+                <div style="font-size:11.5px; color:var(--turmeric-deep); margin-top:6px; background:#FFF8ED; padding:4px 8px; border-radius:6px; display:inline-block;">
+                  ${t.feature}
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; padding-top:12px; border-top:1px dashed var(--line); display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11.5px; color:var(--ink-soft);">
+                ${isMyTable ? '<b style="color:var(--chili);">✓ Allotted to You</b>' : (isFree ? '⚡ Direct Table Service' : 'In Use')}
+              </span>
+              ${isFree ? `
+                <button class="btn btn-sm ${isMyTable ? 'btn-primary' : 'btn-outline'}" onclick="bookTableDirectly('${t.id}')">
+                  ${isMyTable ? 'Table Allotted ✓' : 'Book & Allot 🪑'}
+                </button>
+              ` : `
+                <button class="btn btn-subtle btn-sm" disabled style="opacity:0.6; cursor:not-allowed;">Occupied</button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterTablesByZone(zone, btn) {
+      tableFilterZone = zone;
+      if (btn) {
+        document.querySelectorAll('#table-zone-filter-btns .pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderTableBooking();
+    }
+
+    function filterTablesBySeat(seats, btn) {
+      tableFilterSeat = seats;
+      if (btn) {
+        document.querySelectorAll('#table-seat-filter-btns .pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderTableBooking();
+    }
+
+    function bookTableDirectly(tableId) {
+      const tbl = CAMPUS_TABLES.find(t => t.id === tableId);
+      if (!tbl || tbl.status !== 'available') return;
+      playSound('success');
+      appState.selectedTable = tbl;
+      appState.diningMode = 'dinein';
+      updateCartTableUI();
+      renderTableBooking();
+      showToast(`🪑 Table ${tbl.id} (${tbl.zone}) allotted! Now select your food dishes.`);
+      showPage('page-menu');
+    }
+
+    function autoAllotTableAndOrder() {
+      autoAllotTableForCart(true);
+      showPage('page-menu');
+    }
+
+    function refreshTableStatus() {
+      playSound('tap');
+      CAMPUS_TABLES.forEach(t => {
+        if (Math.random() < 0.25) {
+          t.status = t.status === 'available' ? 'occupied' : 'available';
+          if (t.status === 'occupied') t.etaFree = '~' + (Math.floor(Math.random() * 10) + 4) + ' min';
+        }
+      });
+      renderTableBooking();
+      showToast('Sitting tables status updated with live occupancy feeds!');
+    }
+
+    // =====================================================================
+    // PAYMENT METHOD SELECTION & CHECKOUT HANDLING
+    // =====================================================================
+    function selectPaymentMethod(method) {
+      playSound('tap');
+      selectedPaymentMethod = method;
+      ['upi', 'wallet', 'counter'].forEach(m => {
+        const el = document.getElementById('pay-opt-' + m);
+        if (!el) return;
+        const icon = el.querySelector('.pay-check-icon');
+        if (m === method) {
+          el.style.borderColor = 'var(--chili)';
+          el.style.background = 'var(--chili-soft)';
+          if (icon) { icon.textContent = '✓'; icon.style.color = 'var(--chili)'; }
+        } else {
+          el.style.borderColor = 'var(--line)';
+          el.style.background = '#fff';
+          if (icon) { icon.textContent = '○'; icon.style.color = 'var(--ink-muted)'; }
+        }
+      });
+      const { total } = cartTotals();
+      const btn = document.getElementById('place-order-btn');
+      if (btn) {
+        if (method === 'upi') {
+          btn.innerHTML = `Pay via UPI &amp; Confirm · <span id="place-order-total">₹${total}</span>`;
+        } else if (method === 'wallet') {
+          btn.innerHTML = `Pay with Campus Wallet · <span id="place-order-total">₹${total}</span>`;
+        } else {
+          btn.innerHTML = `Confirm Pre-Order (Pay on Pickup) · <span id="place-order-total">₹${total}</span>`;
+        }
+      }
+    }
+
+    function handleCheckout() {
+      const { count, total, vendor } = cartTotals();
+      if (count === 0) {
+        showToast('Add at least one item to place an order');
+        return;
+      }
+
+      if (selectedPaymentMethod === 'upi') {
+        openUpiPaymentModal(total, vendor, 'food_booking');
+      } else if (selectedPaymentMethod === 'wallet') {
+        if (appState.wallet < total) {
+          showToast('Insufficient campus wallet balance. Please top up or pay with UPI!');
+          openRechargeModal();
+          return;
+        }
+        executeOrderPlacement('Campus Student Wallet', 'PREPAID-WALLET');
+      } else {
+        executeOrderPlacement('Pay at Counter (Cash/Card)', 'UNPAID-COUNTER');
+      }
+    }
+
+    function placeOrder() {
+      handleCheckout();
+    }
+
+    function openUpiPaymentModal(amount, vendor, purpose = 'food_booking') {
+      const nextNo = appState.orderNo + 1;
+      const orderId = '#LPU-' + nextNo + '-' + Math.random().toString(36).slice(2, 5).toUpperCase();
+      pendingOrderContext = {
+        amount: amount,
+        vendor: vendor,
+        orderId: orderId,
+        purpose: purpose
+      };
+
+      const upiId = paymentConfig.upiId || DEFAULT_PAYMENT_CONFIG.upiId;
+      const payeeName = paymentConfig.payeeName || DEFAULT_PAYMENT_CONFIG.payeeName;
+      const note = purpose === 'wallet_recharge' ? ('LPU-Wallet-TopUp-' + orderId) : ('LPU-Food-' + orderId);
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+      // Render Dynamic QR Code
+      const qrBox = document.getElementById('upi-qrcode-container');
+      qrBox.innerHTML = '';
+      new QRCode(qrBox, {
+        text: upiUrl,
+        width: 170,
+        height: 170,
+        colorDark: '#1F1B17',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      // Update Modal Texts
+      document.getElementById('upi-modal-amount').textContent = '₹' + amount.toFixed(2);
+      document.getElementById('upi-modal-order-desc').textContent = purpose === 'wallet_recharge'
+        ? `Campus Wallet Top Up · ${orderId}`
+        : `${vendor ? vendor.name : 'Food Order'} · ${orderId}`;
+      document.getElementById('upi-modal-recipient-name').textContent = payeeName;
+      document.getElementById('upi-modal-id-display').textContent = upiId;
+      document.getElementById('upi-utr-input').value = '';
+
+      // Direct UPI App Deep Links
+      document.getElementById('upi-btn-gpay').href = upiUrl;
+      document.getElementById('upi-btn-phonepe').href = upiUrl;
+      document.getElementById('upi-btn-paytm').href = upiUrl;
+      document.getElementById('upi-btn-bhim').href = upiUrl;
+
+      document.getElementById('upi-payment-modal').classList.add('show');
+      playSound('tap');
+    }
+
+    function closeUpiPaymentModal() {
+      document.getElementById('upi-payment-modal').classList.remove('show');
+      pendingOrderContext = null;
+    }
+
+    function confirmUpiPayment() {
+      if (!pendingOrderContext) return;
+      const utr = document.getElementById('upi-utr-input').value.trim();
+      const ref = utr ? ('UTR-' + utr) : ('UPI-' + Date.now().toString().slice(-8));
+      const recipient = paymentConfig.payeeName + ' (' + paymentConfig.upiId + ')';
+
+      if (pendingOrderContext.purpose === 'food_booking') {
+        const oId = pendingOrderContext.orderId;
+        closeUpiPaymentModal();
+        executeOrderPlacement('UPI Direct Transfer (to ' + recipient + ')', ref, oId);
+      } else if (pendingOrderContext.purpose === 'wallet_recharge') {
+        const amt = pendingOrderContext.amount;
+        appState.wallet += amt;
+        applyProfileToUI();
+        closeUpiPaymentModal();
+        playSound('success');
+        showToast(`₹${amt.toFixed(2)} received on ${paymentConfig.upiId}! Wallet credited.`);
+        if (window.confetti) confetti({ particleCount: 50, spread: 60 });
+      }
+    }
+
+    function startUpiWalletRecharge(methodName) {
+      const custom = parseFloat(document.getElementById('custom-wallet-input').value);
+      const addVal = (!isNaN(custom) && custom > 0) ? custom : selectedRechargeAmount;
+      closeRechargeModal();
+      openUpiPaymentModal(addVal, { name: 'Campus Wallet Top-Up' }, 'wallet_recharge');
+    }
+
+    function copyUpiId() {
+      const upi = paymentConfig.upiId || DEFAULT_PAYMENT_CONFIG.upiId;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(upi).then(() => {
+          playSound('tap');
+          showToast('UPI ID copied to clipboard: ' + upi);
+        }).catch(() => {
+          showToast('Receiving UPI ID: ' + upi);
+        });
+      } else {
+        showToast('Receiving UPI ID: ' + upi);
+      }
+    }
+
+    function executeOrderPlacement(paymentMethod, paymentRef, explicitOrderId) {
+      const { count, total, vendor } = cartTotals();
+      if (count === 0) return;
+
+      if (selectedPaymentMethod === 'wallet' && paymentMethod.includes('Wallet')) {
+        appState.wallet -= total;
+      }
+      appState.orderNo += 1;
+      applyProfileToUI();
+
+      const orderId = explicitOrderId || ('#LPU-' + appState.orderNo + '-' + Math.random().toString(36).slice(2, 5).toUpperCase());
+      const now = new Date();
+
+      const orderItems = vendor.items
+        .filter(it => (cart.qty[it.name] || 0) > 0)
+        .map(it => ({ name: it.name, qty: cart.qty[it.name], price: it.price }));
+
+      const isPaid = !paymentMethod.includes('Counter');
+      const isDineIn = appState.diningMode === 'dinein' && appState.selectedTable;
+      const diningTag = isDineIn ? `🍽️ Dine-in (Table ${appState.selectedTable.id})` : '🛍️ Packed / Takeaway';
+
+      lastOrder = {
+        id: orderId,
+        vendor: vendor.name,
+        location: vendor.location,
+        counterNo: vendor.counterNo,
+        total: total,
+        time: now,
+        items: orderItems,
+        paymentMethod: paymentMethod,
+        paymentRef: paymentRef,
+        paymentStatus: isPaid ? 'PAID & CONFIRMED' : 'PAY ON PICKUP',
+        diningMode: appState.diningMode,
+        tableNo: isDineIn ? appState.selectedTable.id : null,
+        tableZone: isDineIn ? appState.selectedTable.zone : vendor.location,
+        tableSeats: isDineIn ? appState.selectedTable.seats : 4,
+        stage: 1,
+        progressPct: 15
+      };
+
+      if (isDineIn) {
+        const tbl = CAMPUS_TABLES.find(t => t.id === appState.selectedTable.id);
+        if (tbl) {
+          tbl.status = 'occupied';
+          tbl.etaFree = 'Serving ' + appState.name;
+        }
+      }
+
+      // Add to order history
+      const hist = document.getElementById('order-history');
+      if (hist) {
+        const row = document.createElement('div');
+        row.className = 'card';
+        row.style.padding = '14px 18px';
+        row.style.marginBottom = '10px';
+        row.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+              <div style="font-weight:800; font-size:14.5px;">${vendor.name} · ${orderId} · <span style="font-size:12px; color:var(--chili); font-weight:700;">${diningTag}</span></div>
+              <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">
+                Today, ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · ₹${total} · <span style="color:${isPaid ? 'var(--mint)' : 'var(--turmeric-deep)'}; font-weight:700;">${paymentMethod}</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-subtle btn-sm" onclick="viewReceiptSlip()">Receipt Slip</button>
+              <button class="btn btn-primary btn-sm" onclick="reorderLast()">Reorder</button>
+            </div>
+          </div>
+        `;
+        hist.insertBefore(row, hist.firstChild);
+      }
+
+      // Clear cart
+      cart.qty = {};
+      cart.vendorId = null;
+      appState.appliedPromo = null;
+
+      renderMenuPanel();
+      updateCartUI();
+      closeCart();
+
+      playSound('success');
+      showToast('Payment verified & pre-order confirmed! Money received on account.');
+      if (window.confetti) confetti({ particleCount: 50, spread: 60 });
+      document.getElementById('track-badge').classList.add('active');
+
+      showPage('page-track');
+      startOrderSimulation();
+    }
+
+    // =====================================================================
+    // OWNER PAYMENT CONFIGURATION FUNCTIONS
+    // =====================================================================
+    function loadPaymentConfig() {
+      try {
+        const saved = localStorage.getItem('lpu_food_payment_config');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          paymentConfig = { ...DEFAULT_PAYMENT_CONFIG, ...parsed };
+        }
+      } catch (e) {
+        console.warn('Could not read payment config from localStorage', e);
+      }
+      updatePaymentConfigUI();
+    }
+
+    function openOwnerPaymentConfigModal() {
+      playSound('tap');
+      updatePaymentConfigUI();
+      document.getElementById('owner-payment-modal').classList.add('show');
+    }
+
+    function closeOwnerPaymentConfigModal() {
+      document.getElementById('owner-payment-modal').classList.remove('show');
+    }
+
+    function saveOwnerPaymentConfig() {
+      const upi = document.getElementById('config-upi-id').value.trim();
+      const name = document.getElementById('config-payee-name').value.trim();
+      const phone = document.getElementById('config-phone').value.trim();
+      const bank = document.getElementById('config-bank-details').value.trim();
+
+      if (!upi || !upi.includes('@')) {
+        showToast('Please enter a valid UPI ID (e.g. yourname@okhdfcbank)');
+        return;
+      }
+
+      paymentConfig.upiId = upi;
+      paymentConfig.payeeName = name || 'Rohit Kumar';
+      paymentConfig.phone = phone || '9876543210';
+      paymentConfig.bankDetails = bank || '';
+
+      try {
+        localStorage.setItem('lpu_food_payment_config', JSON.stringify(paymentConfig));
+      } catch (e) {
+        console.warn('Could not persist payment config', e);
+      }
+
+      updatePaymentConfigUI();
+      closeOwnerPaymentConfigModal();
+      playSound('success');
+      showToast('Payment receiving account updated: ' + paymentConfig.upiId);
+    }
+
+    function updatePaymentConfigUI() {
+      const sumUpi = document.getElementById('summary-upi-id');
+      if (sumUpi) sumUpi.textContent = paymentConfig.upiId;
+
+      const sumName = document.getElementById('summary-payee-name');
+      if (sumName) sumName.textContent = paymentConfig.payeeName;
+
+      const cfgUpi = document.getElementById('config-upi-id');
+      if (cfgUpi) cfgUpi.value = paymentConfig.upiId;
+
+      const cfgName = document.getElementById('config-payee-name');
+      if (cfgName) cfgName.value = paymentConfig.payeeName;
+
+      const cfgPhone = document.getElementById('config-phone');
+      if (cfgPhone) cfgPhone.value = paymentConfig.phone;
+
+      const cfgBank = document.getElementById('config-bank-details');
+      if (cfgBank) cfgBank.value = paymentConfig.bankDetails || '';
+
+      const modalRecipient = document.getElementById('upi-modal-recipient-name');
+      if (modalRecipient) modalRecipient.textContent = paymentConfig.payeeName;
+
+      const modalIdDisp = document.getElementById('upi-modal-id-display');
+      if (modalIdDisp) modalIdDisp.textContent = paymentConfig.upiId;
+    }
+
+    function startOrderSimulation() {
+      clearInterval(orderSimulationTimer);
+      if (!lastOrder) return;
+
+      // Stage 1 -> Stage 2 (after 4 sec)
+      orderSimulationTimer = setInterval(() => {
+        if (!lastOrder) return;
+        if (lastOrder.stage === 1) {
+          lastOrder.stage = 2;
+          lastOrder.progressPct = 50;
+          renderTrack();
+        } else if (lastOrder.stage === 2) {
+          // Progressively fill bar
+          lastOrder.progressPct += 15;
+          if (lastOrder.progressPct >= 100) {
+            lastOrder.stage = 3;
+            lastOrder.progressPct = 100;
+            clearInterval(orderSimulationTimer);
+            renderTrack();
+            onOrderReadyAlert();
+          } else {
+            renderTrack();
+          }
+        }
+      }, 3500);
+    }
+
+    function fastForwardSimulation() {
+      if (!lastOrder) return;
+      lastOrder.stage = 3;
+      lastOrder.progressPct = 100;
+      clearInterval(orderSimulationTimer);
+      renderTrack();
+      onOrderReadyAlert();
+    }
+
+    function onOrderReadyAlert() {
+      playSound('ready');
+      if (lastOrder && lastOrder.diningMode === 'dinein' && lastOrder.tableNo) {
+        showToast(`🔔 Hot meal is SERVED to Table ${lastOrder.tableNo} on time! Enjoy!`);
+      } else {
+        showToast('🔔 Your order is READY for pickup at ' + (lastOrder ? lastOrder.counterNo : 'Counter') + '!');
+      }
+      if (window.confetti) {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.65 } });
+      }
+    }
+
+    function completePickup() {
+      if (!lastOrder) return;
+      lastOrder.stage = 4;
+      playSound('success');
+      if (lastOrder.diningMode === 'dinein' && lastOrder.tableNo) {
+        showToast(`Meal complete at Table ${lastOrder.tableNo}. Table released!`);
+        const tbl = CAMPUS_TABLES.find(t => t.id === lastOrder.tableNo);
+        if (tbl) {
+          tbl.status = 'available';
+          tbl.etaFree = null;
+        }
+      } else {
+        showToast('Order pickup confirmed. Enjoy your meal!');
+      }
+      document.getElementById('track-badge').classList.remove('active');
+      renderTrack();
+    }
+
+    function renderTrack() {
+      const el = document.getElementById('track-content');
+      const headActions = document.getElementById('track-actions-head');
+
+      if (!lastOrder) {
+        headActions.innerHTML = '';
+        el.innerHTML = `
+      <div class="card" style="text-align:center; padding:64px 20px;">
+        <div style="font-size:48px; margin-bottom:14px;">🧾</div>
+        <h3 style="font-size:18px; margin-bottom:8px;">No Active Campus Orders</h3>
+        <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:20px;">Pick an outlet, order your food, and your live QR pass will show up here.</p>
+        <button class="btn btn-primary" onclick="showPage('page-menu')">Explore Canteen Menus →</button>
+      </div>
+    `;
+        return;
+      }
+
+      headActions.innerHTML = `
+    <div style="display:flex; gap:8px;">
+      ${lastOrder.stage < 3 ? '<button class="btn btn-subtle btn-sm" onclick="fastForwardSimulation()">⚡ Demo: Fast-Forward</button>' : ''}
+      <button class="btn btn-subtle btn-sm" onclick="viewReceiptSlip()">📄 View Slip</button>
+    </div>
+  `;
+
+      const isDineIn = lastOrder.diningMode === 'dinein' && lastOrder.tableNo;
+      const s1 = lastOrder.stage >= 1 ? 'done' : '';
+      const s2 = lastOrder.stage > 2 ? 'done' : (lastOrder.stage === 2 ? 'now' : '');
+      const s3 = lastOrder.stage > 3 ? 'done' : (lastOrder.stage === 3 ? 'now' : '');
+      const s4 = lastOrder.stage === 4 ? 'done' : '';
+
+      const statusHeadline = isDineIn
+        ? (lastOrder.stage === 1 ? `ORDER CONFIRMED &amp; TABLE ${lastOrder.tableNo} ALLOTTED`
+          : lastOrder.stage === 2 ? `KITCHEN COOKING · TABLE ${lastOrder.tableNo} SANITIZED &amp; SET`
+            : lastOrder.stage === 3 ? `🎉 FOOD SERVED TO TABLE ${lastOrder.tableNo} ON TIME!`
+              : `DINING ENJOYED · TABLE ${lastOrder.tableNo} RELEASED`)
+        : (lastOrder.stage === 1 ? 'ORDER CONFIRMED &amp; QUEUED'
+          : lastOrder.stage === 2 ? 'KITCHEN IS PREPARING &amp; PACKING MEAL'
+            : lastOrder.stage === 3 ? '🎉 PACKED TRAY READY AT COUNTER'
+              : 'COMPLETED &amp; PICKED UP');
+
+      const statusColor = lastOrder.stage === 3 ? 'var(--turmeric-deep)' : (lastOrder.stage === 4 ? 'var(--mint)' : 'var(--chili)');
+
+      el.innerHTML = `
+    <div class="track-layout">
+      <!-- QR Pass Card -->
+      <div class="card qr-card">
+        <div style="font-size:12px; font-weight:800; color:${statusColor}; letter-spacing:0.5px;">${statusHeadline}</div>
+        <div id="qrcode"></div>
+        <div class="order-id-badge">${lastOrder.id}</div>
+        <div style="font-size:13px; font-weight:700; color:var(--ink); margin-top:6px;">${lastOrder.vendor} · ${lastOrder.location}</div>
+        
+        ${isDineIn ? `
+          <div class="pickup-counter-tag" style="background:#FFF0D9; color:#9E5100; border:1.5px solid #FFD499; font-weight:800;">
+            🍽️ SITTING TABLE: ${lastOrder.tableNo} (${lastOrder.tableSeats} Seats)
+          </div>
+          <div style="font-size:12px; color:#7B4900; font-weight:700; margin-top:6px;">
+            Food served hot directly to Table ${lastOrder.tableNo} (${lastOrder.tableZone}) on time
+          </div>
+        ` : `
+          <div class="pickup-counter-tag">🛍️ PACKED FOR PICKUP: ${lastOrder.counterNo}</div>
+          <div style="font-size:12px; color:var(--ink-soft); margin-top:6px;">Freshly boxed in eco-containers</div>
+        `}
+
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">Total Settled: ₹${lastOrder.total} · ${lastOrder.paymentMethod}</div>
+
+        ${lastOrder.stage === 3 ? `
+          <button class="btn btn-primary btn-full" style="margin-top:18px;" onclick="completePickup()">
+            ${isDineIn ? `✓ Food Served on Table ${lastOrder.tableNo} · Start Eating` : '✓ I Have Collected My Meal'}
+          </button>
+        ` : ''}
+
+        ${lastOrder.stage === 4 ? `
+          <div style="margin-top:16px; padding:10px; background:var(--mint-soft); color:var(--mint); border-radius:10px; font-weight:700; font-size:12.5px;">
+            ${isDineIn ? `Meal enjoyed on Table ${lastOrder.tableNo}. Hope you had a great dine-in experience!` : `Meal collected from ${lastOrder.counterNo}.`}
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- Live Progression Timeline -->
+      <div class="card timeline">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div style="font-weight:800; font-size:15px;">Preparation &amp; Dining Lifecycle</div>
+          <span style="font-size:12px; font-weight:700; color:var(--chili);">${lastOrder.progressPct}% Complete</span>
+        </div>
+
+        <div class="prep-progress-bar">
+          <div class="prep-progress-fill" style="width:${lastOrder.progressPct}%;"></div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="tl-row">
+            <div style="position:relative;">
+              <div class="tl-dot done">✓</div>
+              <div class="tl-line"></div>
+            </div>
+            <div>
+              <div class="tl-title">${isDineIn ? `Order Confirmed &amp; Table ${lastOrder.tableNo} Reserved` : 'Order Received by Counter'}</div>
+              <div class="tl-sub">${lastOrder.time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · ${isDineIn ? `Sitting area table confirmed in ${lastOrder.tableZone}` : `Sent to ${lastOrder.vendor} kitchen`}</div>
+            </div>
+          </div>
+
+          <div class="tl-row">
+            <div style="position:relative;">
+              <div class="tl-dot ${s2}">🍳</div>
+              <div class="tl-line"></div>
+            </div>
+            <div>
+              <div class="tl-title">${isDineIn ? `Fresh Cooking &amp; Table ${lastOrder.tableNo} Setup` : 'In the Kitchen / Tandoor'}</div>
+              <div class="tl-sub">${isDineIn ? `Dishes cooked fresh; Table ${lastOrder.tableNo} set with cutlery` : 'Timed to box fresh for your class release window'}</div>
+            </div>
+          </div>
+
+          <div class="tl-row">
+            <div style="position:relative;">
+              <div class="tl-dot ${s3}">${isDineIn ? '🍽️' : '📦'}</div>
+              <div class="tl-line"></div>
+            </div>
+            <div>
+              <div class="tl-title">${isDineIn ? `Served to Table ${lastOrder.tableNo} on Time` : `Placed at Express Window (${lastOrder.counterNo})`}</div>
+              <div class="tl-sub">${isDineIn ? `Hot meal tray delivered straight to your table by staff` : 'Flash your QR code on the screen or counter scanner'}</div>
+            </div>
+          </div>
+
+          <div class="tl-row">
+            <div>
+              <div class="tl-dot ${s4}">🎓</div>
+            </div>
+            <div>
+              <div class="tl-title">${isDineIn ? 'Campus Dining Experience Complete' : 'Back to Academic Block'}</div>
+              <div class="tl-sub">Enjoyed on-time with zero queue delays</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+      // Render QR Code
+      const qrContainer = document.getElementById('qrcode');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, {
+        text: `LPU-ORDER:${lastOrder.id};VENDOR:${lastOrder.vendor};USER:${appState.name};DINING:${isDineIn ? ('TABLE-' + lastOrder.tableNo) : 'PACKED'};AMOUNT:${lastOrder.total}`,
+        width: 160,
+        height: 160,
+        colorDark: '#1F1B17',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    function viewReceiptSlip() {
+      if (!lastOrder) return;
+      const slip = document.getElementById('receipt-slip-content');
+      const itemsText = (lastOrder.items || []).map(i => `${i.qty}x ${i.name.padEnd(22, '.')} ₹${i.qty * i.price}`).join('\n');
+      const payeeText = `${paymentConfig.payeeName} (${paymentConfig.upiId})`;
+      const isDineIn = lastOrder.diningMode === 'dinein' && lastOrder.tableNo;
+      slip.innerHTML = `
+========================================
+         LPU CAMPUS FOOD EXPRESS
+       Lovely Professional University
+========================================
+ORDER ID : ${lastOrder.id}
+DATE     : ${lastOrder.time.toLocaleDateString()} ${lastOrder.time.toLocaleTimeString()}
+STUDENT  : ${appState.name} (${appState.block})
+OUTLET   : ${lastOrder.vendor}
+DINING   : ${isDineIn ? (`DINE-IN (TABLE ${lastOrder.tableNo})`) : 'PACKED / TAKEAWAY'}
+SERVICE  : ${isDineIn ? (`Served on Table ${lastOrder.tableNo} on time`) : (`Express Counter ${lastOrder.counterNo}`)}
+LOCATION : ${isDineIn ? lastOrder.tableZone : lastOrder.location}
+----------------------------------------
+${itemsText}
+----------------------------------------
+TOTAL PAYABLE  : ₹${lastOrder.total}.00
+PAYMENT METHOD : ${lastOrder.paymentMethod || 'UPI Direct Transfer'}
+TRANSACTION REF: ${lastOrder.paymentRef || 'VERIFIED'}
+RECEIVER ACCT  : ${payeeText}
+PAYMENT STATUS : ${lastOrder.paymentStatus || 'PAID & CONFIRMED'}
+========================================
+${isDineIn ? `Take your seat at Table ${lastOrder.tableNo}. Food served on table.` : 'Show this token slip or QR at counter window.'}
+  `;
+      document.getElementById('receipt-modal').classList.add('show');
+    }
+    function closeReceiptModal() {
+      document.getElementById('receipt-modal').classList.remove('show');
+    }
+
+    function reorderLast() {
+      if (!lastOrder) return;
+      const v = VENDORS.find(x => x.name === lastOrder.vendor) || VENDORS[0];
+      selectedVendorId = v.id;
+      cart.vendorId = v.id;
+      cart.qty = {};
+      if (lastOrder.items) {
+        lastOrder.items.forEach(i => { cart.qty[i.name] = i.qty; });
+      }
+      showToast('Added previous order items to tray!');
+      showPage('page-menu');
+      renderVendorList();
+      renderMenuPanel();
+      updateCartUI();
+      openCart();
+    }
+
+    // =====================================================================
+    // WALLET RECHARGE SYSTEM
+    // =====================================================================
+    let selectedRechargeAmount = 100;
+
+    function openRechargeModal() {
+      playSound('tap');
+      document.getElementById('modal-wallet-curr').textContent = '₹' + appState.wallet.toFixed(2);
+      document.getElementById('wallet-modal').classList.add('show');
+    }
+    function closeRechargeModal() {
+      document.getElementById('wallet-modal').classList.remove('show');
+    }
+
+    function selectPresetAmount(amt, el) {
+      playSound('tap');
+      selectedRechargeAmount = amt;
+      document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('custom-wallet-input').value = amt;
+    }
+
+    function doRecharge(methodName) {
+      const custom = parseFloat(document.getElementById('custom-wallet-input').value);
+      const addVal = (!isNaN(custom) && custom > 0) ? custom : selectedRechargeAmount;
+      appState.wallet += addVal;
+      applyProfileToUI();
+      closeRechargeModal();
+      playSound('success');
+      showToast(`₹${addVal} added via ${methodName}! New balance: ₹${appState.wallet.toFixed(2)}`);
+      if (window.confetti) confetti({ particleCount: 40, spread: 50 });
+    }
+
+    // =====================================================================
+    // AUTH & SETUP
+    // =====================================================================
+    function openLogin() {
+      playSound('tap');
+      document.getElementById('login-modal').classList.add('show');
+      goToStep('step-mobile');
+    }
+    function closeLogin() {
+      document.getElementById('login-modal').classList.remove('show');
+      appState.pendingPage = null;
+    }
+    function goToStep(id) {
+      document.querySelectorAll('.modal-step').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    function backToMobile() { goToStep('step-mobile'); }
+
+    function sendOtp() {
+      const mobileInput = document.getElementById('mobile-input');
+      const mobile = mobileInput.value.trim();
+      const errEl = document.getElementById('mobile-error');
+      if (mobile.replace(/\D/g, '').length < 10) {
+        errEl.classList.add('show');
+        return;
+      }
+      errEl.classList.remove('show');
+      appState.phone = mobile;
+      appState.otp = String(Math.floor(1000 + Math.random() * 9000));
+
+      document.getElementById('otp-phone-display').textContent = 'Code sent to +91 ' + mobile;
+      const preview = document.getElementById('sms-preview');
+      preview.innerHTML = `📩 <b>Demo SMS Received:</b> "${appState.otp} is your LPU Food verification code. Valid for 5 minutes."`;
+
+      document.querySelectorAll('.otp-box').forEach(b => b.value = '');
+      document.getElementById('otp-error').classList.remove('show');
+      goToStep('step-otp');
+      playSound('tap');
+      showToast('OTP sent to +91 ' + mobile);
+
+      // Auto-fill OTP in demo for smooth presentation
+      setTimeout(() => {
+        const boxes = document.querySelectorAll('.otp-box');
+        if (boxes.length === 4) {
+          boxes[0].value = appState.otp[0];
+          boxes[1].value = appState.otp[1];
+          boxes[2].value = appState.otp[2];
+          boxes[3].value = appState.otp[3];
+        }
+      }, 400);
+    }
+
+    function verifyOtp() {
+      const boxes = document.querySelectorAll('.otp-box');
+      const entered = Array.from(boxes).map(b => b.value).join('');
+      const errEl = document.getElementById('otp-error');
+      if (entered.length < 4 || entered !== appState.otp) {
+        errEl.classList.add('show');
+        return;
+      }
+      errEl.classList.remove('show');
+      playSound('success');
+      showToast('Mobile verified ✓');
+      if (appState.name) {
+        finalizeLogin();
+      } else {
+        goToStep('step-setup');
+      }
+    }
+
+    function finishSetup() {
+      const name = document.getElementById('setup-name').value.trim();
+      if (!name) {
+        document.getElementById('setup-name').focus();
+        showToast('Please enter your full name');
+        return;
+      }
+      appState.name = name;
+      appState.block = document.getElementById('setup-block').value.trim() || 'Block 34';
+      appState.course = document.getElementById('setup-course').value.trim() || 'CSE';
+      finalizeLogin();
+    }
+
+    function finalizeLogin() {
+      appState.loggedIn = true;
+      applyProfileToUI();
+      closeLogin();
+      const dest = appState.pendingPage || 'page-home';
+      appState.pendingPage = null;
+      showPage(dest);
+      showToast('Welcome, ' + appState.name.split(' ')[0] + ' 👋');
+    }
+
+    function applyProfileToUI() {
+      const short = appState.name || 'Student';
+      const ini = initials(short);
+      document.getElementById('nav-avatar').textContent = ini;
+      document.getElementById('nav-name').textContent = short.split(' ')[0];
+      document.getElementById('nav-wallet-val').textContent = '₹' + Math.floor(appState.wallet);
+      document.getElementById('nav-logged-out').style.display = 'none';
+      document.getElementById('nav-logged-in').style.display = 'block';
+
+      document.getElementById('profile-avatar').textContent = ini;
+      document.getElementById('profile-name').textContent = short;
+      document.getElementById('profile-meta').textContent = '+91 ' + appState.phone + ' · ' + (appState.block || 'Block 34');
+      document.getElementById('wallet-balance').textContent = '₹' + appState.wallet.toFixed(2);
+
+      const wBadge = document.getElementById('cart-wallet-badge');
+      if (wBadge) {
+        wBadge.textContent = 'Bal: ₹' + Math.floor(appState.wallet);
+      }
+      updatePaymentConfigUI();
+    }
+
+    function doLogout() {
+      appState.loggedIn = false;
+      appState.name = '';
+      cart.qty = {};
+      cart.vendorId = null;
+      lastOrder = null;
+      document.getElementById('nav-logged-out').style.display = 'block';
+      document.getElementById('nav-logged-in').style.display = 'none';
+      updateCartUI();
+      showPage('page-home');
+      showToast('Logged out');
+    }
+
+    function initials(name) {
+      const parts = name.trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 0) return 'S';
+      if (parts.length === 1) return parts[0][0].toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Auto-advance OTP boxes
+    document.querySelectorAll('.otp-box').forEach((box, i, all) => {
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/[^0-9]/g, '').slice(0, 1);
+        if (box.value && all[i + 1]) all[i + 1].focus();
+      });
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !box.value && all[i - 1]) all[i - 1].focus();
+      });
+    });
+
+    // =====================================================================
+    // CLASS TIMETABLE SYNC & COUNTDOWN
+    // =====================================================================
+    let secondsLeft = 50 * 60; // 50 min before class windup (between class end & next start)
+
+    function onPeriodChange(sec) {
+      secondsLeft = parseInt(sec, 10);
+      const min = Math.round(secondsLeft / 60);
+      const slotEl = document.getElementById('slot-class-text');
+      if (slotEl) {
+        slotEl.textContent = `Match Class Windup (in ~${min} min)`;
+      }
+      playSound('tap');
+      tickCountdown();
+      showToast(`Timetable timer synced to ${min} min!`);
+    }
+
+    function tickCountdown() {
+      const el = document.getElementById('countdown-text');
+      if (!el) return;
+      if (secondsLeft <= 0) {
+        el.textContent = '00:00 (Class Windup)';
+        return;
+      }
+      const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
+      el.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      secondsLeft--;
+    }
+    setInterval(tickCountdown, 1000);
+
+    // =====================================================================
+    // TOAST NOTIFICATIONS
+    // =====================================================================
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerHTML = `<span>💬</span> <span>${msg}</span>`;
+      t.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // =====================================================================
+    // INITIALIZATION
+    // =====================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPaymentConfig();
+      renderCrowd();
+      renderHomeVendors();
+      renderVendorList();
+      renderMenuPanel();
+      applyProfileToUI();
+      updateCartUI();
+      autoAllotTableForCart(false);
+      renderTableBooking();
+    });
+  </script>
+</body>
+
+</html>

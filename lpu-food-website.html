@@ -1851,6 +1851,78 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Table Booking & Sitting Area Styles */
+    .table-card {
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .table-card:hover {
+      border-color: var(--turmeric);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .table-card.selected {
+      border-color: var(--chili) !important;
+      background: var(--chili-soft) !important;
+      box-shadow: 0 0 0 2px var(--chili);
+    }
+
+    .table-card.occupied {
+      background: #FAF9F7;
+      opacity: 0.85;
+    }
+
+    .table-number-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .table-seat-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--steel-2);
+      color: var(--ink-soft);
+    }
+
+    .dining-opt {
+      user-select: none;
+      transition: var(--transition);
+    }
+
+    .dining-opt:hover {
+      transform: translateY(-1px);
+    }
+
+    .dining-opt.checked {
+      border-color: var(--chili) !important;
+      background: var(--chili-soft) !important;
+    }
+
+    .table-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .table-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
   </style>
 </head>
 
@@ -1862,8 +1934,9 @@
       <div class="ticker-content" id="ticker-content">
         <div class="ticker-item">⚡ <b>Express Pickup:</b> Block 34 Canteen (Punjabi Rasoi) wait time under 5 min</div>
         <div class="ticker-item">🔥 <b>Lunch Rush Alert:</b> Uni-Mall Food Court occupancy currently at 86%</div>
-        <div class="ticker-item">🎓 <b>CSE Class Sync:</b> Order 20 min before period ends to collect fresh at counter
+        <div class="ticker-item">🎓 <b>CSE Class Sync:</b> Order 50 min before class windup (between class end &amp; next start) to collect fresh at counter
         </div>
+        <div class="ticker-item">🪑 <b>Sitting Table Booking:</b> Live table allotment available · Food served hot on your table on time</div>
         <div class="ticker-item">🎁 <b>Promo Code:</b> Use <code>LPUFIRST</code> for ₹30 off your first pre-order</div>
       </div>
     </div>
@@ -1884,6 +1957,10 @@
       <nav class="nav-links" id="nav-links">
         <button class="nav-link active" data-page="page-home" onclick="showPage('page-home')">Home</button>
         <button class="nav-link" data-page="page-menu" onclick="showPage('page-menu')">Order Food</button>
+        <button class="nav-link" data-page="page-tables" onclick="showPage('page-tables')">
+          🪑 Table Booking
+          <span class="nav-badge" id="nav-table-free-badge" style="display:inline-block; background:var(--mint); color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px; margin-left:3px;">16 Free</span>
+        </button>
         <button class="nav-link" data-page="page-crowd" onclick="showPage('page-crowd')">Campus Crowd Map</button>
         <button class="nav-link" data-page="page-track" onclick="showPage('page-track')">
           Track Order
@@ -1936,6 +2013,7 @@
               monitor real-time crowd heatmaps, and pick up your hot tray with an instant QR pass.</p>
             <div class="hero-cta">
               <button class="btn btn-turmeric" onclick="showPage('page-menu')">Order Food Now →</button>
+              <button class="btn btn-outline" style="border-color:#fff; color:#fff;" onclick="showPage('page-tables')">🪑 Book Table &amp; Dine In</button>
               <button class="btn btn-ghost" style="border-color:#fff; color:#fff;" onclick="showPage('page-crowd')">View
                 Campus Heatmap</button>
             </div>
@@ -1951,17 +2029,17 @@
               </div>
               <div class="sync-select-wrap">
                 <select class="select-styled" id="hero-period-select" onchange="onPeriodChange(this.value)">
-                  <option value="1200">Period 3 · Ends in 20 min (12:40 PM)</option>
+                  <option value="3000">Next Class · Ends in 50 min (Class Windup Sync)</option>
                   <option value="2100">Period 4 · Ends in 35 min (01:30 PM)</option>
+                  <option value="1200">Period 3 · Ends in 20 min (12:40 PM)</option>
                   <option value="600">Lab Break · Ends in 10 min (02:00 PM)</option>
                   <option value="300">Custom Quick · Ready in 5 min</option>
                 </select>
               </div>
               <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                  <div class="countdown-display" id="countdown-text">20:00</div>
-                  <div style="font-size:11.5px; color:#6B4913; margin-top:1px;">Pre-order now to match your lecture
-                    release</div>
+                  <div class="countdown-display" id="countdown-text">50:00</div>
+                  <div style="font-size:11.5px; color:#6B4913; margin-top:1px;">Pre-order 50 min before class windup (between classes)</div>
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="showPage('page-menu')">Pick Vendor</button>
               </div>
@@ -2156,6 +2234,67 @@
           <!-- Live Density Cards -->
           <div class="grid-4" id="crowd-grid"></div>
         </div>
+    </section>
+
+    <!-- ================= PAGE: TABLE BOOKING & SITTING AREA ================= -->
+    <section class="page" id="page-tables">
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <h2>Campus Sitting Area &amp; Table Booking</h2>
+            <p>Reserve an available table in advance or get one allotted for your meal. Enjoy hot food served right to your table on time.</p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-turmeric btn-sm" onclick="autoAllotTableAndOrder()">⚡ Auto-Allot Table &amp; Order</button>
+            <button class="btn btn-subtle btn-sm" onclick="refreshTableStatus()">🔄 Refresh Status</button>
+          </div>
+        </div>
+
+        <!-- Sitting Area Stats Banner -->
+        <div class="table-stats-grid" style="margin-bottom:24px;">
+          <div class="card" style="padding:16px; text-align:center;">
+            <div style="font-size:24px;">🪑</div>
+            <div style="font-size:22px; font-weight:800; color:var(--ink); margin-top:4px;" id="stat-total-tables">21</div>
+            <div style="font-size:12px; color:var(--ink-soft);">Total Sitting Tables</div>
+          </div>
+          <div class="card" style="padding:16px; text-align:center; background:linear-gradient(135deg, #F0FDF4, #DCFCE7); border:1.5px solid #86EFAC;">
+            <div style="font-size:24px;">🟢</div>
+            <div style="font-size:22px; font-weight:800; color:#15803D; margin-top:4px;" id="stat-free-tables">16</div>
+            <div style="font-size:12px; color:#166534; font-weight:700;">Available Right Now</div>
+          </div>
+          <div class="card" style="padding:16px; text-align:center;">
+            <div style="font-size:24px;">👥</div>
+            <div style="font-size:22px; font-weight:800; color:var(--chili); margin-top:4px;" id="stat-busy-tables">5</div>
+            <div style="font-size:12px; color:var(--ink-soft);">Occupied / In Dining</div>
+          </div>
+          <div class="card" style="padding:16px; text-align:center; background:linear-gradient(135deg, #FFF9EB, #FEF3C7); border:1.5px solid #FCD34D;">
+            <div style="font-size:24px;">⏱️</div>
+            <div style="font-size:22px; font-weight:800; color:var(--turmeric-deep); margin-top:4px;">On-Time</div>
+            <div style="font-size:12px; color:#7B4900; font-weight:700;">Direct Table Service</div>
+          </div>
+        </div>
+
+        <!-- Zone Filters -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;" id="table-zone-filter-btns">
+            <button class="pill active" style="cursor:pointer;" onclick="filterTablesByZone('all', this)">All Canteen Zones</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('quick', this)">🏢 Uni-Mall Food Court</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('rasoi', this)">🍛 Block 34 (Punjabi Rasoi)</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('south', this)">🥗 Block 32 (South Express)</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('chai', this)">☕ Block 38 Library Café</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesByZone('juice', this)">🏋️ Sports Arena Hub</button>
+          </div>
+          <div style="display:flex; gap:6px;" id="table-seat-filter-btns">
+            <button class="pill active" style="cursor:pointer;" onclick="filterTablesBySeat('all', this)">All Capacities</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesBySeat(2, this)">👥 2 Seats</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesBySeat(4, this)">👥 4 Seats</button>
+            <button class="pill" style="cursor:pointer;" onclick="filterTablesBySeat(6, this)">👥 6+ Seats</button>
+          </div>
+        </div>
+
+        <!-- Table Cards Grid -->
+        <div class="grid-3" id="table-display-grid"></div>
+      </div>
     </section>
 
     <!-- ================= PAGE: ORDER FOOD (MENU) ================= -->
@@ -2374,14 +2513,59 @@
         </div>
       </div>
 
+      <!-- Dining Preference: Dine-In vs Packed -->
+      <div style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:10px;">
+        DINING PREFERENCE · HOW TO ENJOY?
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+        <div class="dining-opt checked" id="dining-opt-dinein" onclick="selectDiningMode('dinein')"
+          style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:12px 10px; border:1.5px solid var(--chili); border-radius:12px; cursor:pointer; background:var(--chili-soft); transition:var(--transition);">
+          <span style="font-size:24px; margin-bottom:4px;">🍽️</span>
+          <div style="font-weight:800; font-size:13px; color:var(--ink);">Eat on Table</div>
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:2px;">Served to sitting table on time</div>
+          <span class="dining-check-icon" id="dining-check-dinein" style="font-size:12px; color:var(--chili); font-weight:800; margin-top:4px;">✓ Selected</span>
+        </div>
+
+        <div class="dining-opt" id="dining-opt-packed" onclick="selectDiningMode('packed')"
+          style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:12px 10px; border:1.5px solid var(--line); border-radius:12px; cursor:pointer; background:#fff; transition:var(--transition);">
+          <span style="font-size:24px; margin-bottom:4px;">🛍️</span>
+          <div style="font-weight:800; font-size:13px; color:var(--ink);">Packed / Takeaway</div>
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:2px;">Sealed box for class/dorm</div>
+          <span class="dining-check-icon" id="dining-check-packed" style="font-size:12px; color:var(--ink-muted); margin-top:4px;">○ Select</span>
+        </div>
+      </div>
+
+      <!-- Allotted Table Banner (Shown when Dine-In is active) -->
+      <div id="cart-table-box" style="margin-bottom:14px; padding:12px 14px; border-radius:12px; background:linear-gradient(135deg, #FFF7EB 0%, #FEE8C8 100%); border:1.5px solid rgba(244, 162, 40, 0.5); display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:38px; height:38px; border-radius:10px; background:var(--turmeric); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">🪑</div>
+          <div>
+            <div style="font-size:10.5px; font-weight:800; color:#7B4900; letter-spacing:0.4px;">ALLOTTED SITTING TABLE</div>
+            <div style="font-weight:800; font-size:13px; color:var(--ink);" id="cart-allotted-table-text">Table T-02 · Uni-Mall (4 Seats)</div>
+            <div style="font-size:11px; color:#6B4913; margin-top:1px;">⚡ Hot food served directly on table on time</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="background:#fff; font-size:11px; padding:6px 10px; flex-shrink:0;" onclick="openTableSelectModal()">Change 🪑</button>
+      </div>
+
+      <!-- Packed Notice (Shown when Packed is active) -->
+      <div id="cart-packed-box" style="display:none; margin-bottom:14px; padding:12px 14px; border-radius:12px; background:var(--card-subtle); border:1.5px solid var(--line); align-items:center; gap:10px;">
+        <span style="font-size:22px;">📦</span>
+        <div>
+          <div style="font-size:10.5px; font-weight:800; color:var(--ink-soft); letter-spacing:0.4px;">PACKED FOR TAKEAWAY</div>
+          <div style="font-size:12.5px; font-weight:700; color:var(--ink);">Freshly boxed with eco-friendly cutlery</div>
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:1px;">Ready at express counter window right when bell rings</div>
+        </div>
+      </div>
+
       <!-- Pickup Slot Options -->
       <div style="font-size:12px; font-weight:800; color:var(--ink-soft); margin-bottom:10px;">WHEN SHOULD IT BE READY?
       </div>
       <div class="slot-option checked" onclick="selectSlot(this, 'sync')"
         style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1.5px solid var(--chili); border-radius:12px; margin-bottom:8px; cursor:pointer; background:var(--chili-soft);">
         <div>
-          <div style="font-weight:800; font-size:13px;" id="slot-class-text">Match Class End (in ~20 min)</div>
-          <div style="font-size:11.5px; color:var(--ink-soft); margin-top:2px;">Freshly boxed right when bell rings
+          <div style="font-weight:800; font-size:13px;" id="slot-class-text">Match Class Windup (in ~50 min)</div>
+          <div style="font-size:11.5px; color:var(--ink-soft); margin-top:2px;">Ordered between classes · Freshly boxed at lecture windup
           </div>
         </div>
         <span style="font-size:16px; color:var(--chili);">✓</span>
@@ -2683,6 +2867,37 @@
       <div style="display:flex; gap:10px;">
         <button class="btn btn-primary btn-full" onclick="saveOwnerPaymentConfig()">💾 Save Account Details</button>
         <button class="btn btn-subtle btn-sm" onclick="closeOwnerPaymentConfigModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: TABLE SELECTION ================= -->
+  <div class="modal-overlay" id="table-select-modal">
+    <div class="modal-card" style="max-width:540px; max-height:92vh; overflow-y:auto; padding:22px;">
+      <button class="modal-close" onclick="closeTableSelectModal()">✕</button>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:var(--turmeric); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px;">🪑</div>
+        <div>
+          <h3 style="font-size:18px; font-weight:800; margin:0;">Select Sitting Table</h3>
+          <p style="font-size:12px; color:var(--ink-soft); margin:0;">Pick an available table for on-time table dining service</p>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; gap:6px;" id="modal-table-filter-pills">
+          <button class="pill active" style="cursor:pointer;" onclick="filterModalTables('all', this)">All Tables</button>
+          <button class="pill" style="cursor:pointer;" onclick="filterModalTables(2, this)">2-Seat</button>
+          <button class="pill" style="cursor:pointer;" onclick="filterModalTables(4, this)">4-Seat</button>
+          <button class="pill" style="cursor:pointer;" onclick="filterModalTables(6, this)">6-Seat</button>
+        </div>
+        <button class="btn btn-turmeric btn-sm" onclick="autoAllotTableForCart()">⚡ Auto-Allot</button>
+      </div>
+
+      <div id="modal-table-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; max-height:360px; overflow-y:auto; padding:4px;"></div>
+
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="font-size:12.5px; color:var(--ink-soft);" id="modal-table-selected-label">Selected: <b>Table T-02</b></div>
+        <button class="btn btn-primary btn-sm" onclick="confirmModalTableSelection()">Confirm Table Allotment ✓</button>
       </div>
     </div>
   </div>
@@ -3046,6 +3261,48 @@
     };
 
     // =====================================================================
+    // CAMPUS SITTING AREAS & TABLES DATA
+    // =====================================================================
+    const CAMPUS_TABLES = [
+      // Uni-Mall Food Court (zoneId: 'quick')
+      { id: 'T-01', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 2, type: 'Couples / Duo Pod', feature: '❄️ AC Hall · Window View', status: 'available' },
+      { id: 'T-02', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 4, type: 'Standard Quad Table', feature: '⚡ Power Outlet · Central Hall', status: 'available' },
+      { id: 'T-03', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 4, type: 'Plush Dining Booth', feature: '❄️ AC Hall · Cushioned', status: 'occupied', etaFree: '~6 min' },
+      { id: 'T-04', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 6, type: 'Group Study & Dine Table', feature: '⚡ Multi-plug · Mezzanine Floor', status: 'available' },
+      { id: 'T-05', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 2, type: 'Express Quick Table', feature: '📶 High Speed WiFi · Quick Bites', status: 'available' },
+      { id: 'T-06', zoneId: 'quick', zone: 'Uni-Mall Food Court', seats: 4, type: 'Standard Quad Table', feature: '❄️ AC Central · Near Escalator', status: 'available' },
+
+      // Block 34 Punjabi Rasoi (zoneId: 'rasoi')
+      { id: 'B-01', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 4, type: 'Open Garden Terrace Table', feature: '🌿 Fresh Air Lawn View', status: 'available' },
+      { id: 'B-02', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 4, type: 'Main Dining Hall Table', feature: '⚡ Fast Table Service · Fan Cooled', status: 'available' },
+      { id: 'B-03', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 6, type: 'CSE Squad Big Table', feature: '👥 Group Seating · Whiteboard View', status: 'occupied', etaFree: '~10 min' },
+      { id: 'B-04', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 2, type: 'Corner Duo Desk', feature: '🌿 Quiet Corner · Tree Shade', status: 'available' },
+      { id: 'B-05', zoneId: 'rasoi', zone: 'Block 34 Canteen', seats: 4, type: 'Garden Terrace Table', feature: '🌿 Lawn View · Sanitized', status: 'available' },
+
+      // Block 32 South Canteen (zoneId: 'south')
+      { id: 'S-01', zoneId: 'south', zone: 'Block 32 Canteen', seats: 4, type: 'Courtyard Palm Seating', feature: '☀️ Sun Shade Canopy · Open Air', status: 'available' },
+      { id: 'S-02', zoneId: 'south', zone: 'Block 32 Canteen', seats: 2, type: 'Bistro 2-Seater', feature: '⚡ Quick Tiffin Bench', status: 'available' },
+      { id: 'S-03', zoneId: 'south', zone: 'Block 32 Canteen', seats: 6, type: 'South Verandah Long Table', feature: '👥 Large Batch Seating', status: 'available' },
+      { id: 'S-04', zoneId: 'south', zone: 'Block 32 Canteen', seats: 4, type: 'Courtyard Quad Table', feature: '🌿 Courtyard View · Sanitized', status: 'occupied', etaFree: '~4 min' },
+
+      // Block 38 Central Library Lounge (zoneId: 'chai')
+      { id: 'L-01', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 2, type: 'Quiet Study & Sip Desk', feature: '⚡ Dual Power Sockets · Silent Zone', status: 'available' },
+      { id: 'L-02', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 2, type: 'Discussion Corner', feature: '☕ Beside Coffee Bar', status: 'available' },
+      { id: 'L-03', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 4, type: 'Study Pod Table', feature: '⚡ Power Outlets · Lamp Lit', status: 'available' },
+      { id: 'L-04', zoneId: 'chai', zone: 'Block 38 Library Café', seats: 4, type: 'Lounge Sofa Table', feature: '🛋️ Plush Seating · Air Conditioned', status: 'occupied', etaFree: '~8 min' },
+
+      // Sports Hub & Hostel (zoneId: 'juice')
+      { id: 'G-01', zoneId: 'juice', zone: 'Sports Arena Hub', seats: 2, type: 'Athletic High Bar Table', feature: '🏋️ High Stool · Arena View', status: 'available' },
+      { id: 'G-02', zoneId: 'juice', zone: 'Sports Arena Hub', seats: 4, type: 'Fitness Lounge Table', feature: '🌿 Outdoor Shaded Pergola', status: 'available' },
+      { id: 'G-03', zoneId: 'juice', zone: 'Sports Arena Hub', seats: 4, type: 'Girls Hostel Lawn Table', feature: '🌸 Garden Seating · Sanitized', status: 'occupied', etaFree: '~5 min' }
+    ];
+
+    let tableFilterZone = 'all';
+    let tableFilterSeat = 'all';
+    let modalSelectedTableId = null;
+    let modalSeatFilter = 'all';
+
+    // =====================================================================
     // APP STATE
     // =====================================================================
     const appState = {
@@ -3062,7 +3319,9 @@
       activeFilter: 'all',
       searchQuery: '',
       sortOrder: 'default',
-      pickupSlotMode: 'sync' // 'sync' or 'asap'
+      pickupSlotMode: 'sync', // 'sync' or 'asap'
+      diningMode: 'dinein',   // 'dinein' (eat on allotted table) or 'packed' (takeaway)
+      selectedTable: null     // Allotted sitting table object
     };
 
     const cart = {
@@ -3105,6 +3364,7 @@
 
       if (id === 'page-track') renderTrack();
       if (id === 'page-crowd') selectMapSpot(selectedVendorId);
+      if (id === 'page-tables') renderTableBooking();
     }
 
     function requireLoginThen(pageId) {
@@ -3482,6 +3742,10 @@
       if (wBadge) {
         wBadge.textContent = 'Bal: ₹' + Math.floor(appState.wallet);
       }
+      updateCartTableUI();
+      if (!appState.selectedTable && appState.diningMode === 'dinein') {
+        autoAllotTableForCart(false);
+      }
     }
 
     function openCart() {
@@ -3508,6 +3772,293 @@
       el.style.background = 'var(--chili-soft)';
       el.querySelector('span').textContent = '✓';
       el.querySelector('span').style.color = 'var(--chili)';
+    }
+
+    // =====================================================================
+    // SITTING AREA & TABLE ALLOTMENT FUNCTIONS
+    // =====================================================================
+    function selectDiningMode(mode) {
+      playSound('tap');
+      appState.diningMode = mode;
+
+      const optDinein = document.getElementById('dining-opt-dinein');
+      const optPacked = document.getElementById('dining-opt-packed');
+      const checkDinein = document.getElementById('dining-check-dinein');
+      const checkPacked = document.getElementById('dining-check-packed');
+      const boxTable = document.getElementById('cart-table-box');
+      const boxPacked = document.getElementById('cart-packed-box');
+
+      if (mode === 'dinein') {
+        if (optDinein) {
+          optDinein.style.borderColor = 'var(--chili)';
+          optDinein.style.background = 'var(--chili-soft)';
+        }
+        if (optPacked) {
+          optPacked.style.borderColor = 'var(--line)';
+          optPacked.style.background = '#fff';
+        }
+        if (checkDinein) {
+          checkDinein.textContent = '✓ Selected';
+          checkDinein.style.color = 'var(--chili)';
+        }
+        if (checkPacked) {
+          checkPacked.textContent = '○ Select';
+          checkPacked.style.color = 'var(--ink-muted)';
+        }
+        if (boxTable) boxTable.style.display = 'flex';
+        if (boxPacked) boxPacked.style.display = 'none';
+
+        if (!appState.selectedTable) {
+          autoAllotTableForCart(false);
+        }
+      } else {
+        if (optDinein) {
+          optDinein.style.borderColor = 'var(--line)';
+          optDinein.style.background = '#fff';
+        }
+        if (optPacked) {
+          optPacked.style.borderColor = 'var(--chili)';
+          optPacked.style.background = 'var(--chili-soft)';
+        }
+        if (checkDinein) {
+          checkDinein.textContent = '○ Select';
+          checkDinein.style.color = 'var(--ink-muted)';
+        }
+        if (checkPacked) {
+          checkPacked.textContent = '✓ Selected';
+          checkPacked.style.color = 'var(--chili)';
+        }
+        if (boxTable) boxTable.style.display = 'none';
+        if (boxPacked) boxPacked.style.display = 'flex';
+      }
+    }
+
+    function autoAllotTableForCart(showFeedback = true) {
+      const vendorId = cart.vendorId || selectedVendorId || 'rasoi';
+      let free = CAMPUS_TABLES.filter(t => t.zoneId === vendorId && t.status === 'available');
+      if (free.length === 0) {
+        free = CAMPUS_TABLES.filter(t => t.status === 'available');
+      }
+      if (free.length > 0) {
+        appState.selectedTable = free[0];
+        updateCartTableUI();
+        if (showFeedback) {
+          playSound('success');
+          showToast(`⚡ Allotted Table ${free[0].id} (${free[0].zone}) for your order!`);
+          closeTableSelectModal();
+        }
+      } else {
+        if (showFeedback) showToast('All tables currently occupied. Staff will seat you upon arrival.');
+      }
+    }
+
+    function updateCartTableUI() {
+      const textEl = document.getElementById('cart-allotted-table-text');
+      if (textEl && appState.selectedTable) {
+        textEl.textContent = `Table ${appState.selectedTable.id} · ${appState.selectedTable.zone} (${appState.selectedTable.seats} Seats)`;
+      }
+    }
+
+    function openTableSelectModal() {
+      playSound('tap');
+      modalSelectedTableId = appState.selectedTable ? appState.selectedTable.id : null;
+      renderModalTableGrid();
+      document.getElementById('table-select-modal').classList.add('show');
+    }
+
+    function closeTableSelectModal() {
+      document.getElementById('table-select-modal').classList.remove('show');
+    }
+
+    function filterModalTables(seats, btn) {
+      modalSeatFilter = seats;
+      if (btn) {
+        document.querySelectorAll('#modal-table-filter-pills .pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderModalTableGrid();
+    }
+
+    function renderModalTableGrid() {
+      const grid = document.getElementById('modal-table-grid');
+      if (!grid) return;
+      const targetZone = cart.vendorId || selectedVendorId;
+
+      let list = CAMPUS_TABLES;
+      if (modalSeatFilter !== 'all') {
+        const s = parseInt(modalSeatFilter, 10);
+        list = list.filter(t => t.seats === s);
+      }
+
+      grid.innerHTML = list.map(t => {
+        const isFree = t.status === 'available';
+        const isSelected = modalSelectedTableId === t.id;
+        const isSameZone = t.zoneId === targetZone;
+
+        return `
+          <div class="table-card ${isSelected ? 'selected' : ''} ${!isFree ? 'occupied' : ''}" 
+            onclick="${isFree ? `selectModalTable('${t.id}')` : `showToast('Table ${t.id} occupied (leaves in ~6 min)')`}"
+            style="cursor:${isFree ? 'pointer' : 'not-allowed'}; padding:12px; border-radius:10px; ${isSelected ? 'border-color:var(--chili); background:var(--chili-soft);' : ''}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:800; font-size:15px; font-family:'Outfit',sans-serif;">${t.id}</span>
+              <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; ${isFree ? 'background:var(--mint-soft); color:var(--mint);' : 'background:#FFEAE8; color:var(--chili);'}">
+                ${isFree ? '● Free' : ('● Busy ' + (t.etaFree || ''))}
+              </span>
+            </div>
+            <div style="font-size:11px; font-weight:700; color:var(--ink-soft); margin-top:4px;">👥 ${t.seats} Seats · ${t.type}</div>
+            <div style="font-size:10.5px; color:var(--ink-muted); margin-top:2px;">${t.zone}</div>
+            <div style="font-size:10px; color:${isSameZone ? 'var(--turmeric-deep)' : 'var(--ink-soft)'}; margin-top:4px;">${t.feature}</div>
+            ${isSelected ? '<div style="margin-top:6px; font-size:11px; font-weight:800; color:var(--chili);">✓ Selected</div>' : ''}
+          </div>
+        `;
+      }).join('');
+
+      const lbl = document.getElementById('modal-table-selected-label');
+      if (lbl) {
+        lbl.innerHTML = modalSelectedTableId
+          ? `Selected: <b>Table ${modalSelectedTableId}</b>`
+          : 'Please tap an available table';
+      }
+    }
+
+    function selectModalTable(tableId) {
+      playSound('tap');
+      modalSelectedTableId = tableId;
+      renderModalTableGrid();
+    }
+
+    function confirmModalTableSelection() {
+      if (!modalSelectedTableId) {
+        showToast('Please select a table first');
+        return;
+      }
+      const tbl = CAMPUS_TABLES.find(t => t.id === modalSelectedTableId);
+      if (tbl) {
+        appState.selectedTable = tbl;
+        appState.diningMode = 'dinein';
+        selectDiningMode('dinein');
+        updateCartTableUI();
+        playSound('success');
+        showToast(`Table ${tbl.id} confirmed for your sitting meal!`);
+      }
+      closeTableSelectModal();
+    }
+
+    function renderTableBooking() {
+      const grid = document.getElementById('table-display-grid');
+      if (!grid) return;
+
+      let filtered = CAMPUS_TABLES;
+      if (tableFilterZone !== 'all') {
+        filtered = filtered.filter(t => t.zoneId === tableFilterZone);
+      }
+      if (tableFilterSeat !== 'all') {
+        const s = parseInt(tableFilterSeat, 10);
+        filtered = filtered.filter(t => t.seats === s);
+      }
+
+      const total = CAMPUS_TABLES.length;
+      const freeCount = CAMPUS_TABLES.filter(t => t.status === 'available').length;
+      const busyCount = total - freeCount;
+
+      const statTot = document.getElementById('stat-total-tables');
+      const statFree = document.getElementById('stat-free-tables');
+      const statBusy = document.getElementById('stat-busy-tables');
+      const navBadge = document.getElementById('nav-table-free-badge');
+
+      if (statTot) statTot.textContent = total;
+      if (statFree) statFree.textContent = freeCount;
+      if (statBusy) statBusy.textContent = busyCount;
+      if (navBadge) navBadge.textContent = freeCount + ' Free';
+
+      grid.innerHTML = filtered.map(t => {
+        const isFree = t.status === 'available';
+        const isMyTable = appState.selectedTable && appState.selectedTable.id === t.id;
+
+        return `
+          <div class="table-card ${isMyTable ? 'selected' : ''} ${!isFree ? 'occupied' : ''}">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="table-number-badge">${t.id}</span>
+                  <span class="table-seat-chip">👥 ${t.seats} Seats</span>
+                </div>
+                <span style="font-size:11px; font-weight:800; padding:3px 8px; border-radius:999px; ${isFree ? 'background:var(--mint-soft); color:var(--mint);' : 'background:#FFEAE8; color:var(--chili);'}">
+                  ${isFree ? '🟢 Available' : ('🔴 Occupied · Free ' + (t.etaFree || 'in 8 min'))}
+                </span>
+              </div>
+
+              <div style="margin-top:10px;">
+                <div style="font-weight:700; font-size:14px; color:var(--ink);">${t.type}</div>
+                <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">📍 ${t.zone}</div>
+                <div style="font-size:11.5px; color:var(--turmeric-deep); margin-top:6px; background:#FFF8ED; padding:4px 8px; border-radius:6px; display:inline-block;">
+                  ${t.feature}
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; padding-top:12px; border-top:1px dashed var(--line); display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11.5px; color:var(--ink-soft);">
+                ${isMyTable ? '<b style="color:var(--chili);">✓ Allotted to You</b>' : (isFree ? '⚡ Direct Table Service' : 'In Use')}
+              </span>
+              ${isFree ? `
+                <button class="btn btn-sm ${isMyTable ? 'btn-primary' : 'btn-outline'}" onclick="bookTableDirectly('${t.id}')">
+                  ${isMyTable ? 'Table Allotted ✓' : 'Book & Allot 🪑'}
+                </button>
+              ` : `
+                <button class="btn btn-subtle btn-sm" disabled style="opacity:0.6; cursor:not-allowed;">Occupied</button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterTablesByZone(zone, btn) {
+      tableFilterZone = zone;
+      if (btn) {
+        document.querySelectorAll('#table-zone-filter-btns .pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderTableBooking();
+    }
+
+    function filterTablesBySeat(seats, btn) {
+      tableFilterSeat = seats;
+      if (btn) {
+        document.querySelectorAll('#table-seat-filter-btns .pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderTableBooking();
+    }
+
+    function bookTableDirectly(tableId) {
+      const tbl = CAMPUS_TABLES.find(t => t.id === tableId);
+      if (!tbl || tbl.status !== 'available') return;
+      playSound('success');
+      appState.selectedTable = tbl;
+      appState.diningMode = 'dinein';
+      updateCartTableUI();
+      renderTableBooking();
+      showToast(`🪑 Table ${tbl.id} (${tbl.zone}) allotted! Now select your food dishes.`);
+      showPage('page-menu');
+    }
+
+    function autoAllotTableAndOrder() {
+      autoAllotTableForCart(true);
+      showPage('page-menu');
+    }
+
+    function refreshTableStatus() {
+      playSound('tap');
+      CAMPUS_TABLES.forEach(t => {
+        if (Math.random() < 0.25) {
+          t.status = t.status === 'available' ? 'occupied' : 'available';
+          if (t.status === 'occupied') t.etaFree = '~' + (Math.floor(Math.random() * 10) + 4) + ' min';
+        }
+      });
+      renderTableBooking();
+      showToast('Sitting tables status updated with live occupancy feeds!');
     }
 
     // =====================================================================
@@ -3679,6 +4230,8 @@
         .map(it => ({ name: it.name, qty: cart.qty[it.name], price: it.price }));
 
       const isPaid = !paymentMethod.includes('Counter');
+      const isDineIn = appState.diningMode === 'dinein' && appState.selectedTable;
+      const diningTag = isDineIn ? `🍽️ Dine-in (Table ${appState.selectedTable.id})` : '🛍️ Packed / Takeaway';
 
       lastOrder = {
         id: orderId,
@@ -3691,9 +4244,21 @@
         paymentMethod: paymentMethod,
         paymentRef: paymentRef,
         paymentStatus: isPaid ? 'PAID & CONFIRMED' : 'PAY ON PICKUP',
+        diningMode: appState.diningMode,
+        tableNo: isDineIn ? appState.selectedTable.id : null,
+        tableZone: isDineIn ? appState.selectedTable.zone : vendor.location,
+        tableSeats: isDineIn ? appState.selectedTable.seats : 4,
         stage: 1,
         progressPct: 15
       };
+
+      if (isDineIn) {
+        const tbl = CAMPUS_TABLES.find(t => t.id === appState.selectedTable.id);
+        if (tbl) {
+          tbl.status = 'occupied';
+          tbl.etaFree = 'Serving ' + appState.name;
+        }
+      }
 
       // Add to order history
       const hist = document.getElementById('order-history');
@@ -3705,7 +4270,7 @@
         row.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
-              <div style="font-weight:800; font-size:14.5px;">${vendor.name} · ${orderId}</div>
+              <div style="font-weight:800; font-size:14.5px;">${vendor.name} · ${orderId} · <span style="font-size:12px; color:var(--chili); font-weight:700;">${diningTag}</span></div>
               <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">
                 Today, ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · ₹${total} · <span style="color:${isPaid ? 'var(--mint)' : 'var(--turmeric-deep)'}; font-weight:700;">${paymentMethod}</span>
               </div>
@@ -3855,7 +4420,11 @@
 
     function onOrderReadyAlert() {
       playSound('ready');
-      showToast('🔔 Your order is READY for pickup at ' + lastOrder.counterNo + '!');
+      if (lastOrder && lastOrder.diningMode === 'dinein' && lastOrder.tableNo) {
+        showToast(`🔔 Hot meal is SERVED to Table ${lastOrder.tableNo} on time! Enjoy!`);
+      } else {
+        showToast('🔔 Your order is READY for pickup at ' + (lastOrder ? lastOrder.counterNo : 'Counter') + '!');
+      }
       if (window.confetti) {
         confetti({ particleCount: 60, spread: 70, origin: { y: 0.65 } });
       }
@@ -3865,7 +4434,16 @@
       if (!lastOrder) return;
       lastOrder.stage = 4;
       playSound('success');
-      showToast('Order pickup confirmed. Enjoy your meal!');
+      if (lastOrder.diningMode === 'dinein' && lastOrder.tableNo) {
+        showToast(`Meal complete at Table ${lastOrder.tableNo}. Table released!`);
+        const tbl = CAMPUS_TABLES.find(t => t.id === lastOrder.tableNo);
+        if (tbl) {
+          tbl.status = 'available';
+          tbl.etaFree = null;
+        }
+      } else {
+        showToast('Order pickup confirmed. Enjoy your meal!');
+      }
       document.getElementById('track-badge').classList.remove('active');
       renderTrack();
     }
@@ -3894,15 +4472,21 @@
     </div>
   `;
 
+      const isDineIn = lastOrder.diningMode === 'dinein' && lastOrder.tableNo;
       const s1 = lastOrder.stage >= 1 ? 'done' : '';
       const s2 = lastOrder.stage > 2 ? 'done' : (lastOrder.stage === 2 ? 'now' : '');
       const s3 = lastOrder.stage > 3 ? 'done' : (lastOrder.stage === 3 ? 'now' : '');
       const s4 = lastOrder.stage === 4 ? 'done' : '';
 
-      const statusHeadline = lastOrder.stage === 1 ? 'ORDER CONFIRMED &amp; QUEUED'
-        : lastOrder.stage === 2 ? 'KITCHEN IS PREPARING YOUR MEAL'
-          : lastOrder.stage === 3 ? '🎉 READY FOR PICKUP'
-            : 'COMPLETED &amp; PICKED UP';
+      const statusHeadline = isDineIn
+        ? (lastOrder.stage === 1 ? `ORDER CONFIRMED &amp; TABLE ${lastOrder.tableNo} ALLOTTED`
+          : lastOrder.stage === 2 ? `KITCHEN COOKING · TABLE ${lastOrder.tableNo} SANITIZED &amp; SET`
+            : lastOrder.stage === 3 ? `🎉 FOOD SERVED TO TABLE ${lastOrder.tableNo} ON TIME!`
+              : `DINING ENJOYED · TABLE ${lastOrder.tableNo} RELEASED`)
+        : (lastOrder.stage === 1 ? 'ORDER CONFIRMED &amp; QUEUED'
+          : lastOrder.stage === 2 ? 'KITCHEN IS PREPARING &amp; PACKING MEAL'
+            : lastOrder.stage === 3 ? '🎉 PACKED TRAY READY AT COUNTER'
+              : 'COMPLETED &amp; PICKED UP');
 
       const statusColor = lastOrder.stage === 3 ? 'var(--turmeric-deep)' : (lastOrder.stage === 4 ? 'var(--mint)' : 'var(--chili)');
 
@@ -3914,18 +4498,30 @@
         <div id="qrcode"></div>
         <div class="order-id-badge">${lastOrder.id}</div>
         <div style="font-size:13px; font-weight:700; color:var(--ink); margin-top:6px;">${lastOrder.vendor} · ${lastOrder.location}</div>
-        <div class="pickup-counter-tag">${lastOrder.counterNo}</div>
-        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">Total Settled: ₹${lastOrder.total} · Campus Wallet</div>
+        
+        ${isDineIn ? `
+          <div class="pickup-counter-tag" style="background:#FFF0D9; color:#9E5100; border:1.5px solid #FFD499; font-weight:800;">
+            🍽️ SITTING TABLE: ${lastOrder.tableNo} (${lastOrder.tableSeats} Seats)
+          </div>
+          <div style="font-size:12px; color:#7B4900; font-weight:700; margin-top:6px;">
+            Food served hot directly to Table ${lastOrder.tableNo} (${lastOrder.tableZone}) on time
+          </div>
+        ` : `
+          <div class="pickup-counter-tag">🛍️ PACKED FOR PICKUP: ${lastOrder.counterNo}</div>
+          <div style="font-size:12px; color:var(--ink-soft); margin-top:6px;">Freshly boxed in eco-containers</div>
+        `}
+
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">Total Settled: ₹${lastOrder.total} · ${lastOrder.paymentMethod}</div>
 
         ${lastOrder.stage === 3 ? `
           <button class="btn btn-primary btn-full" style="margin-top:18px;" onclick="completePickup()">
-            ✓ I Have Collected My Meal
+            ${isDineIn ? `✓ Food Served on Table ${lastOrder.tableNo} · Start Eating` : '✓ I Have Collected My Meal'}
           </button>
         ` : ''}
 
         ${lastOrder.stage === 4 ? `
           <div style="margin-top:16px; padding:10px; background:var(--mint-soft); color:var(--mint); border-radius:10px; font-weight:700; font-size:12.5px;">
-            Meal collected from ${lastOrder.counterNo}.
+            ${isDineIn ? `Meal enjoyed on Table ${lastOrder.tableNo}. Hope you had a great dine-in experience!` : `Meal collected from ${lastOrder.counterNo}.`}
           </div>
         ` : ''}
       </div>
@@ -3933,7 +4529,7 @@
       <!-- Live Progression Timeline -->
       <div class="card timeline">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-          <div style="font-weight:800; font-size:15px;">Preparation Lifecycle</div>
+          <div style="font-weight:800; font-size:15px;">Preparation &amp; Dining Lifecycle</div>
           <span style="font-size:12px; font-weight:700; color:var(--chili);">${lastOrder.progressPct}% Complete</span>
         </div>
 
@@ -3948,8 +4544,8 @@
               <div class="tl-line"></div>
             </div>
             <div>
-              <div class="tl-title">Order Received by Counter</div>
-              <div class="tl-sub">${lastOrder.time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · Sent to ${lastOrder.vendor} kitchen</div>
+              <div class="tl-title">${isDineIn ? `Order Confirmed &amp; Table ${lastOrder.tableNo} Reserved` : 'Order Received by Counter'}</div>
+              <div class="tl-sub">${lastOrder.time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · ${isDineIn ? `Sitting area table confirmed in ${lastOrder.tableZone}` : `Sent to ${lastOrder.vendor} kitchen`}</div>
             </div>
           </div>
 
@@ -3959,19 +4555,19 @@
               <div class="tl-line"></div>
             </div>
             <div>
-              <div class="tl-title">In the Kitchen / Tandoor</div>
-              <div class="tl-sub">Timed to box fresh for your class release window</div>
+              <div class="tl-title">${isDineIn ? `Fresh Cooking &amp; Table ${lastOrder.tableNo} Setup` : 'In the Kitchen / Tandoor'}</div>
+              <div class="tl-sub">${isDineIn ? `Dishes cooked fresh; Table ${lastOrder.tableNo} set with cutlery` : 'Timed to box fresh for your class release window'}</div>
             </div>
           </div>
 
           <div class="tl-row">
             <div style="position:relative;">
-              <div class="tl-dot ${s3}">📦</div>
+              <div class="tl-dot ${s3}">${isDineIn ? '🍽️' : '📦'}</div>
               <div class="tl-line"></div>
             </div>
             <div>
-              <div class="tl-title">Placed at Express Window (${lastOrder.counterNo})</div>
-              <div class="tl-sub">Flash your QR code on the screen or counter scanner</div>
+              <div class="tl-title">${isDineIn ? `Served to Table ${lastOrder.tableNo} on Time` : `Placed at Express Window (${lastOrder.counterNo})`}</div>
+              <div class="tl-sub">${isDineIn ? `Hot meal tray delivered straight to your table by staff` : 'Flash your QR code on the screen or counter scanner'}</div>
             </div>
           </div>
 
@@ -3980,8 +4576,8 @@
               <div class="tl-dot ${s4}">🎓</div>
             </div>
             <div>
-              <div class="tl-title">Back to Academic Block</div>
-              <div class="tl-sub">Zero counter delay, on-time for your afternoon session</div>
+              <div class="tl-title">${isDineIn ? 'Campus Dining Experience Complete' : 'Back to Academic Block'}</div>
+              <div class="tl-sub">Enjoyed on-time with zero queue delays</div>
             </div>
           </div>
         </div>
@@ -3993,7 +4589,7 @@
       const qrContainer = document.getElementById('qrcode');
       qrContainer.innerHTML = '';
       new QRCode(qrContainer, {
-        text: `LPU-ORDER:${lastOrder.id};VENDOR:${lastOrder.vendor};USER:${appState.name};AMOUNT:${lastOrder.total}`,
+        text: `LPU-ORDER:${lastOrder.id};VENDOR:${lastOrder.vendor};USER:${appState.name};DINING:${isDineIn ? ('TABLE-' + lastOrder.tableNo) : 'PACKED'};AMOUNT:${lastOrder.total}`,
         width: 160,
         height: 160,
         colorDark: '#1F1B17',
@@ -4007,6 +4603,7 @@
       const slip = document.getElementById('receipt-slip-content');
       const itemsText = (lastOrder.items || []).map(i => `${i.qty}x ${i.name.padEnd(22, '.')} ₹${i.qty * i.price}`).join('\n');
       const payeeText = `${paymentConfig.payeeName} (${paymentConfig.upiId})`;
+      const isDineIn = lastOrder.diningMode === 'dinein' && lastOrder.tableNo;
       slip.innerHTML = `
 ========================================
          LPU CAMPUS FOOD EXPRESS
@@ -4016,7 +4613,9 @@ ORDER ID : ${lastOrder.id}
 DATE     : ${lastOrder.time.toLocaleDateString()} ${lastOrder.time.toLocaleTimeString()}
 STUDENT  : ${appState.name} (${appState.block})
 OUTLET   : ${lastOrder.vendor}
-PICKUP   : ${lastOrder.counterNo}
+DINING   : ${isDineIn ? (`DINE-IN (TABLE ${lastOrder.tableNo})`) : 'PACKED / TAKEAWAY'}
+SERVICE  : ${isDineIn ? (`Served on Table ${lastOrder.tableNo} on time`) : (`Express Counter ${lastOrder.counterNo}`)}
+LOCATION : ${isDineIn ? lastOrder.tableZone : lastOrder.location}
 ----------------------------------------
 ${itemsText}
 ----------------------------------------
@@ -4026,7 +4625,7 @@ TRANSACTION REF: ${lastOrder.paymentRef || 'VERIFIED'}
 RECEIVER ACCT  : ${payeeText}
 PAYMENT STATUS : ${lastOrder.paymentStatus || 'PAID & CONFIRMED'}
 ========================================
-Show this token slip or QR at counter window.
+${isDineIn ? `Take your seat at Table ${lastOrder.tableNo}. Food served on table.` : 'Show this token slip or QR at counter window.'}
   `;
       document.getElementById('receipt-modal').classList.add('show');
     }
@@ -4232,20 +4831,25 @@ Show this token slip or QR at counter window.
     // =====================================================================
     // CLASS TIMETABLE SYNC & COUNTDOWN
     // =====================================================================
-    let secondsLeft = 20 * 60;
+    let secondsLeft = 50 * 60; // 50 min before class windup (between class end & next start)
 
     function onPeriodChange(sec) {
       secondsLeft = parseInt(sec, 10);
+      const min = Math.round(secondsLeft / 60);
+      const slotEl = document.getElementById('slot-class-text');
+      if (slotEl) {
+        slotEl.textContent = `Match Class Windup (in ~${min} min)`;
+      }
       playSound('tap');
       tickCountdown();
-      showToast('Timetable timer synced!');
+      showToast(`Timetable timer synced to ${min} min!`);
     }
 
     function tickCountdown() {
       const el = document.getElementById('countdown-text');
       if (!el) return;
       if (secondsLeft <= 0) {
-        el.textContent = '00:00 (Class Ended)';
+        el.textContent = '00:00 (Class Windup)';
         return;
       }
       const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
@@ -4276,6 +4880,8 @@ Show this token slip or QR at counter window.
       renderMenuPanel();
       applyProfileToUI();
       updateCartUI();
+      autoAllotTableForCart(false);
+      renderTableBooking();
     });
   </script>
 </body>
